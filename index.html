@@ -296,6 +296,40 @@ h1 {
 .legend .ring { fill: none; stroke: var(--gold); stroke-width: 1; }
 .legend .ln { stroke: var(--ink); stroke-width: 2; fill: none; }
 
+/* map tabs + verse mode */
+.tabs { display: flex; gap: 6px; padding-inline: 16px; }
+.tab {
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-edge);
+  background: transparent;
+  font: 16px/1.2 var(--display);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: #0b1430; }
+.verse-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-inline: 16px; }
+.verse-row::-webkit-scrollbar { display: none; }
+.verse-row .label { flex: none; font-size: 13px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+blockquote.verse {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-inline-start: 2px solid var(--gold);
+  background: rgba(216, 178, 90, 0.07);
+  font-size: 16.5px;
+  line-height: 1.45;
+  unicode-bidi: plaintext;
+}
+blockquote.verse mark { background: none; color: var(--gold); font-weight: 700; }
+.gloss { margin: 4px 0 0; font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+.verse-label { margin: 14px 0 0; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.timeline { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.timeline button { display: block; width: 100%; padding: 10px 8px; border: 0; border-radius: 8px; background: transparent; text-align: left; cursor: pointer; }
+.timeline button:hover, .timeline button:focus-visible { background: rgba(239, 231, 210, 0.06); }
+.timeline .who { font-weight: 700; }
+.timeline .who small { font-weight: 400; color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
+.jump { margin-top: 14px; border: 1px solid var(--panel-edge); background: transparent; border-radius: 10px; padding: 7px 12px; font-size: 14px; cursor: pointer; color: var(--gold); }
+
 footer {
   max-width: 1280px;
   margin: 0 auto;
@@ -350,12 +384,16 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
 <header class="top">
   <p class="eyebrow">“Look toward heaven and count the stars” · Genesis 15:5</p>
   <h1>Cloud of Witnesses</h1>
-  <p class="lede">How Israel’s ideas about God moved from person to person: from <b>Abraham</b> through the prophets, the exile and the rival <b>Jewish sects</b>, to <b>Jesus</b>, the apostles and the <b>church fathers</b> who wrote the Nicene Creed.</p>
+  <p class="lede" id="lede"></p>
   <div class="stats" id="stats"></div>
 </header>
 
 <nav class="bar" id="bar" aria-label="Filter by idea">
   <div class="bar-inner">
+    <div class="tabs" role="tablist" aria-label="Choose a map">
+      <button type="button" class="tab" role="tab" data-map="ideas" aria-selected="true">Ideas about God</button>
+      <button type="button" class="tab" role="tab" data-map="scripture" aria-selected="false">Scripture’s journey</button>
+    </div>
     <div class="bar-row">
       <div class="search">
         <label for="q" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Find a person, group or writing</label>
@@ -364,7 +402,8 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
       </div>
       <button class="clear-all" id="clearAll" type="button" hidden>Clear</button>
     </div>
-    <div class="chips" id="chips" role="group" aria-label="Ideas"></div>
+    <div class="chips" id="chips" role="group" aria-label="Threads"></div>
+    <div class="verse-row" id="verseRow" hidden><span class="label">Follow a verse</span></div>
     <p class="idea-note" id="ideaNote" hidden></p>
   </div>
 </nav>
@@ -372,7 +411,7 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
 <div class="wrap">
   <main id="stage">
     <div class="intro-mobile">
-      <p>Time runs down the page, from about 1800 BCE to 325 CE. <b style="color:var(--ink)">Tap anyone</b> to see who shaped them and whom they shaped. <b style="color:var(--ink)">Pick an idea</b> above to follow its thread.</p>
+      <p id="introMobile"></p>
     </div>
     <svg id="graph" role="img" aria-label="Network of people, communities and writings linked by the ideas about God they passed on"></svg>
   </main>
@@ -383,7 +422,8 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
   <h2>How the links were drawn</h2>
   <p>Each line records a concrete connection: a text one author quotes from another, a teacher and student, a community that inherited a practice, or an argument one side had with another. Solid lines pass an idea on. Dashed lines mark a clash, where one side reacted against the other. Dotted lines are connections that scholars propose but still debate.</p>
   <p>Dates before the monarchy (Abraham to Joshua) follow the biblical tradition, which archaeology cannot confirm. Later dates are the usual scholarly estimates. The book of Daniel, for example, is placed in the Maccabean crisis around 165 BCE, where most historians date it, rather than in the Babylonian exile where its story is set.</p>
-  <p>The map shows how ideas travelled. It does not rule on which reading of them is right.</p>
+  <p>On the scripture map, a line means one text was copied, translated or revised from another, or written in reaction to it. The verse comparisons quote each version in its own language with an English gloss. Older English spellings are modernized where noted, and later revisions are named where a version changed over time.</p>
+  <p>The maps show how ideas and texts travelled. They do not rule on which reading is right.</p>
 </footer>
 
 <script>
@@ -415,7 +455,6 @@ const ERAS = [
   { name: "The Road to Nicaea", dates: "c. 190–325 CE" }
 ];
 
-const KINDS = { p: "Person", g: "Community", w: "Writing", e: "Council" };
 
 // [id, era, kind, name, date, summary, key texts]
 const NODES = [
@@ -652,27 +691,341 @@ const EDGES = [
   ["moses", "nicaea", "one", "‘We believe in one God’: the creed still begins with the Shema (Deut 6:4)."]
 ];
 
-/* ---------------- model ---------------- */
-const ideaById = Object.fromEntries(IDEAS.map(i => [i.id, i]));
-const nodes = NODES.map(([id, era, kind, name, date, text, refs]) => ({ id, era, kind, name, date, text, refs, in: [], out: [] }));
-const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
-const edges = EDGES.map(([s, t, ideas, note, flag], i) => {
-  const e = { i, s: byId[s], t: byId[t], ideas: ideas.split(" "), note, flag: flag || "" };
-  if (!e.s || !e.t) console.warn("bad edge", s, t);
-  e.s.out.push(e); e.t.in.push(e);
-  return e;
-});
-nodes.forEach(n => {
-  n.deg = n.in.length + n.out.length;
-  n.ideas = [...new Set([...n.in, ...n.out].flatMap(e => e.ideas))].sort((a, b) => IDEAS.findIndex(x => x.id === a) - IDEAS.findIndex(x => x.id === b));
-});
+/* ---------------- scripture map data ---------------- */
+const S_THREADS = [
+  { id: "hebrew", label: "Hebrew text", color: "#f5d76e", desc: "The Hebrew scriptures copied letter by letter, from Temple scrolls to the Masoretic codices and printed editions." },
+  { id: "greekot", label: "Greek Old Testament", color: "#8fa8ff", desc: "The Septuagint and the Jewish Greek versions that answered it." },
+  { id: "greeknt", label: "Greek New Testament", color: "#5cc8ff", desc: "From the first copies of Paul and the Gospels to the critical texts behind modern Bibles." },
+  { id: "aramaic", label: "Aramaic & Syriac", color: "#7be0c3", desc: "Targums read aloud in synagogues and the Syriac Peshitta of the eastern churches." },
+  { id: "latin", label: "Latin", color: "#e8584f", desc: "Old Latin, Jerome’s Vulgate and the Bible of the medieval West." },
+  { id: "english", label: "English", color: "#ef8a5a", desc: "From Wycliffe’s hand-copied Bible through Tyndale and the King James to today." },
+  { id: "other", label: "German, Spanish & Gothic", color: "#c77dff", desc: "Other vernacular Bibles that shaped the story: Ulfilas, Luther and Reina-Valera." },
+  { id: "canon", label: "Canon", color: "#ff8fb1", desc: "Which books count as scripture, and why Jewish, Catholic and Protestant Bibles still differ." },
+  { id: "interp", label: "Jewish interpretation", color: "#a6d96a", desc: "Rabbinic reading traditions, from Akiva to Rashi, and how Christian translators borrowed them." }
+];
 
-const state = { sel: null, idea: null, lineage: false };
+const S_ERAS = [
+  { name: "Scrolls of the Second Temple", dates: "c. 450 BCE – 100 CE" },
+  { name: "Rabbis & Early Translators", dates: "c. 70–250 CE" },
+  { name: "Codices & Canon", dates: "c. 300–600 CE" },
+  { name: "Masoretes & Middle Ages", dates: "c. 600–1450" },
+  { name: "Printing & Reformation", dates: "1455–1611" },
+  { name: "Manuscript Hunters & Revisions", dates: "1844–1950" },
+  { name: "Modern Translations", dates: "1952 – today" }
+];
+
+// [id, era, kind, name, date, summary, where to see it, verses]
+// verses: { deut: [text, gloss], isa: [text, gloss] }  *word* marks the word to watch
+const S_NODES = [
+  ["soferim", 0, "g", "Temple Scribes", "c. 450 BCE – 70 CE", "Professional copyists in the line of Ezra who copied Torah scrolls by hand. The Talmud says they were called soferim, ‘counters’, because they counted every letter of the Torah. The Hebrew text is not yet fixed: several versions circulate side by side.", "Neh 8; b. Kiddushin 30a"],
+  ["samaritanpent", 0, "w", "Samaritan Pentateuch", "c. 100 BCE (this form)", "The Samaritans’ own Torah, in an old Hebrew script. It differs from the Jewish text in about 6,000 places, mostly spelling, but it also names Mount Gerizim as God’s chosen place of worship.", "Deut 27:4; Ex 20"],
+  ["septuagint", 0, "t", "Septuagint (Greek)", "c. 250–100 BCE", "Alexandrian Jews translate the Torah, then the other books, into Greek. It includes books later left out of the Hebrew Bible, such as Sirach, Wisdom and 1–2 Maccabees, and it becomes the Old Testament of the early church.", "Letter of Aristeas; b. Megillah 9a",
+    { deut: ["ἄκουε, Ισραηλ· *κύριος* ὁ θεὸς ἡμῶν *κύριος* εἷς ἐστιν", "‘Hear, Israel: the Lord our God is one Lord.’ The Name becomes Kyrios, ‘Lord’."],
+      isa: ["ἰδοὺ ἡ *παρθένος* ἐν γαστρὶ ἕξει καὶ τέξεται υἱόν", "‘Behold, the virgin shall conceive and bear a son.’ The translators chose parthenos, a word usually meaning ‘virgin’."] }],
+  ["dss", 0, "w", "Dead Sea Scrolls", "c. 250 BCE – 68 CE", "About 230 biblical manuscripts copied or kept by the Qumran community. Most match the later Masoretic text closely, but some agree with the Septuagint or the Samaritan text, proof that several Hebrew versions once existed.", "1QIsaᵃ (Great Isaiah Scroll); 4QSamᵃ",
+    { isa: ["*העלמה* (ha-almah)", "The Great Isaiah Scroll has the same word as the later Masoretic text: almah, ‘young woman’."] }],
+  ["ntwriters", 0, "w", "Letters & Gospels", "c. 50–100 CE", "Paul’s letters, the Gospels and other early Christian writings, composed in Greek. When they quote scripture they usually quote the Septuagint. No original manuscript survives.", "Mark 12:29; Matt 1:23",
+    { deut: ["ἄκουε, Ἰσραήλ, *κύριος* ὁ θεὸς ἡμῶν *κύριος* εἷς ἐστιν", "Jesus quotes the Shema in Mark 12:29, word for word as in the Septuagint."],
+      isa: ["ἰδοὺ ἡ *παρθένος* ἐν γαστρὶ ἕξει καὶ τέξεται υἱόν", "Matthew 1:23 quotes the Septuagint’s ‘virgin’ for Jesus’ birth."] }],
+
+  ["yavneh", 1, "g", "Sages of Yavneh", "c. 70–135 CE", "After the Temple falls, the rabbis debate which books ‘defile the hands’, meaning which are holy. The Song of Songs and Ecclesiastes are argued over. The Hebrew canon of 24 books settles in this period, though scholars dispute how formal the decision was.", "m. Yadayim 3:5; m. Eduyot 5:3"],
+  ["akiva", 1, "p", "Rabbi Akiva", "c. 50–135 CE", "The leading sage of his generation. He taught that every letter of the Torah, down to the decorative crowns, carries meaning, which made exact copying matter even more. He defended the Song of Songs as ‘the Holy of Holies’.", "m. Yadayim 3:5; b. Menachot 29b"],
+  ["aquila", 1, "t", "Aquila’s Greek", "c. 130 CE", "A convert to Judaism who made a word-for-word Greek translation for Jewish readers, replacing the Septuagint that Christians were using. The Jerusalem Talmud says the sages praised it.", "y. Megillah 1:11; Irenaeus, AH 3.21.1",
+    { isa: ["ἰδοὺ ἡ *νεᾶνις*…", "‘Behold, the young woman…’ Aquila replaces parthenos with neanis, as Irenaeus reports."] }],
+  ["symmachus", 1, "t", "Symmachus", "c. 200 CE", "A smoother, more idiomatic Greek version. Eusebius says Symmachus was an Ebionite, a Jewish follower of Jesus. Jerome relied on it often.", "Eusebius, Church History 6.17"],
+  ["theodotion", 1, "t", "Theodotion", "c. 150–200 CE (debated)", "A revision of the Greek toward the Hebrew. His version of Daniel replaced the Septuagint’s in almost every Christian Bible.", "Irenaeus, AH 3.21.1; Jerome, Preface to Daniel",
+    { isa: ["ἰδοὺ ἡ *νεᾶνις*…", "Theodotion also reads neanis, ‘young woman’ (Irenaeus, AH 3.21.1)."] }],
+  ["mishnah", 1, "w", "Mishnah", "c. 200 CE", "Judah ha-Nasi’s code of oral law. It sets rules for how scrolls are written and read in synagogue, and records the debates over which books are holy.", "m. Yadayim 3–4; m. Megillah"],
+  ["p52", 1, "w", "Papyrus 52", "c. 125–175 CE", "A scrap of John 18 about the size of a credit card, often cited as the oldest surviving piece of the New Testament.", "John Rylands Library, Manchester"],
+  ["peshitta", 1, "t", "Peshitta (Syriac)", "c. 150–400 CE", "The Bible of Syriac-speaking Christians in Edessa and further east. Its Old Testament was translated from Hebrew, possibly by Jewish or Jewish-Christian translators.", "Syriac Bible"],
+  ["oldlatin", 1, "t", "Old Latin", "c. 180–380 CE", "The Vetus Latina: patchwork Latin translations made from the Greek for churches in North Africa and Italy. Tertullian and Cyprian quote them.", "Tertullian; Cyprian"],
+  ["origenhex", 1, "w", "Origen’s Hexapla", "c. 245 CE", "Six columns side by side: the Hebrew, the Hebrew in Greek letters, Aquila, Symmachus, the Septuagint and Theodotion. The first critical edition of the Bible.", "Eusebius, Church History 6.16"],
+
+  ["vaticanus", 2, "w", "Codex Vaticanus", "c. 300–325 CE", "One of the two oldest nearly complete Bibles: Septuagint and New Testament together in one Greek book. Listed in the Vatican Library’s catalogue since 1475.", "Vatican Library, Vat. gr. 1209"],
+  ["sinaiticus", 2, "w", "Codex Sinaiticus", "c. 330–360 CE", "A Greek Bible kept at St Catherine’s Monastery, Sinai. It holds the oldest complete New Testament, plus the Letter of Barnabas and the Shepherd of Hermas.", "British Library and three other collections"],
+  ["athanasius367", 2, "p", "Athanasius’ Canon List", "367 CE", "In his 39th Festal Letter, Bishop Athanasius lists exactly the 27 books of today’s New Testament, the first surviving list to do so. His Old Testament list follows the Hebrew canon closely and names Wisdom, Sirach and others as good for reading.", "Festal Letter 39"],
+  ["vulgate", 2, "t", "Jerome’s Vulgate", "c. 382–405 CE", "Jerome moves to Bethlehem, learns Hebrew from Jewish teachers and translates the Old Testament from the Hebrew, which he calls the ‘Hebrew truth’, instead of from the Greek. His Latin becomes the Western church’s Bible for a thousand years.", "Jerome, Preface to Samuel & Kings",
+    { deut: ["audi Israhel *Dominus* Deus noster *Dominus* unus est", "‘Hear, Israel: the Lord our God is one Lord.’ Kyrios becomes Dominus."],
+      isa: ["ecce *virgo* concipiet et pariet filium et vocabitis nomen eius Emmanuhel", "‘Behold, a virgin shall conceive and bear a son, and you shall call his name Emmanuel.’ Jerome keeps ‘virgin’ while translating from the Hebrew."] }],
+  ["onkelos", 2, "t", "Targum Onkelos", "c. 2nd–5th c. CE", "The official Aramaic translation of the Torah, read aloud verse by verse after the Hebrew in synagogue. It softens bodily images of God, speaking of God’s Word (Memra) and Presence (Shekhinah).", "b. Megillah 3a"],
+  ["talmud", 2, "w", "Babylonian Talmud", "c. 500–600 CE", "Vast commentary on the Mishnah. It lays down scribal rules still used for Torah scrolls today and tells the story of the Septuagint’s origin.", "b. Megillah 9a; Tractate Soferim"],
+  ["ulfilas", 2, "t", "Ulfilas’ Gothic Bible", "c. 350 CE", "Bishop Ulfilas invents an alphabet to translate the Bible into Gothic, the first Bible in a Germanic language.", "Codex Argenteus, Uppsala"],
+
+  ["masoretes", 3, "g", "The Masoretes", "c. 600–1000 CE", "Scribes in Tiberias and Babylon who add vowel points, accents and margin notes around the consonants so the text is read exactly as tradition received it. Under YHWH they write the vowels of Adonai, ‘my Lord’, as a reminder not to pronounce the Name.", "Masorah parva and magna",
+    { deut: ["שְׁמַע יִשְׂרָאֵל *יְהוָה* אֱלֹהֵינוּ *יְהוָה* אֶחָד", "Shema Yisrael, Adonai Eloheinu, Adonai echad. The four letters YHWH carry Adonai’s vowels, so readers say ‘Adonai’."],
+      isa: ["הִנֵּה *הָעַלְמָה* הָרָה וְיֹלֶדֶת בֵּן", "Hinneh ha-almah harah ve-yoledet ben: ‘Look, the young woman is pregnant (or: will conceive) and will bear a son.’"] }],
+  ["aleppo", 3, "w", "Aleppo Codex", "c. 930 CE", "The Hebrew Bible pointed by Aaron ben Asher, which Maimonides praised as the most accurate. Damaged in riots in Aleppo in 1947; about 40 percent, including most of the Torah, is lost.", "Israel Museum, Jerusalem"],
+  ["leningrad", 3, "w", "Leningrad Codex", "1008–1009 CE", "The oldest complete Hebrew Bible, copied in Cairo from Ben Asher texts. It is the basis of the printed Hebrew Bibles scholars use today.", "National Library of Russia, St Petersburg"],
+  ["byzantine", 3, "w", "Byzantine Manuscripts", "c. 400–1500 CE", "Thousands of Greek New Testament copies made across the Eastern Empire. They agree closely with each other, and a handful of late ones supply the text Erasmus prints.", "The ‘Majority Text’"],
+  ["rashi", 3, "p", "Rashi", "1040–1105", "Rabbi Shlomo Yitzchaki of Troyes. His line-by-line commentary on the Hebrew Bible and Talmud becomes the standard Jewish explanation of the plain sense.", "Commentary on the Torah (printed 1475)"],
+  ["lyra", 3, "p", "Nicholas of Lyra", "c. 1270–1349", "Franciscan scholar who read Hebrew and drew heavily on Rashi for the literal sense. His notes were printed with countless Bibles, and Luther used them.", "Postillae perpetuae"],
+  ["wycliffe", 3, "t", "Wycliffe Bible", "1382–1395", "The first complete Bible in English, translated from the Latin Vulgate by John Wycliffe’s circle and copied by hand. The Constitutions of Oxford (1409) banned new translations without a bishop’s approval.", "About 250 surviving manuscripts",
+    { isa: ["*virgyn*", "Wycliffe follows the Latin virgo: in Middle English, ‘a virgyn schal conseyue’."] }],
+
+  ["gutenberg", 4, "t", "Gutenberg Bible", "c. 1455", "The first major book printed in Europe with movable type: the Latin Vulgate. Printing ends centuries of copying by hand and makes identical Bibles possible.", "Mainz, c. 1455"],
+  ["bomberg", 4, "w", "Rabbinic Bible", "1524–25", "Printed in Venice by Daniel Bomberg and edited by the Jewish scholar Jacob ben Hayyim: Hebrew text, Masorah, Targum and commentaries such as Rashi on one page. It is the standard printed Hebrew text for 400 years, including for the King James translators.", "Mikraot Gedolot, Venice"],
+  ["erasmus", 4, "w", "Erasmus’ Greek NT", "1516", "The first published Greek New Testament, rushed out from a handful of late Byzantine manuscripts with Erasmus’ own Latin beside it. Its later editions become the ‘Textus Receptus’ behind Luther, Tyndale and the King James.", "Novum Instrumentum, Basel 1516"],
+  ["luther", 4, "t", "Luther Bible", "1522 (NT), 1534 (whole)", "Martin Luther translates the New Testament from Erasmus’ Greek and the Old Testament from Hebrew into everyday German. He gathers the Apocrypha into a separate section, ‘useful and good to read’ but not equal to scripture.", "Septembertestament 1522",
+    { deut: ["Höre, Israel, der *HERR*, unser Gott, ist ein einiger *HERR*.", "‘Hear, Israel, the LORD our God is one LORD.’ Luther prints HERR in capitals wherever the Hebrew has YHWH (1545 edition)."],
+      isa: ["Siehe, eine *Jungfrau* ist schwanger und wird einen Sohn gebären, den wird sie heißen Immanuel.", "‘Behold, a virgin is with child and will bear a son…’ (1545 edition)."] }],
+  ["tyndale", 4, "t", "Tyndale’s Bible", "1526 (NT), 1530 (Torah)", "William Tyndale translates the New Testament from Greek and the Torah from Hebrew into plain English. Printed abroad and smuggled into England, it costs him his life in 1536. Much of the King James wording is his, and he prints the Name as ‘Iehovah’ in Exodus 6:3.", "Worms 1526; Antwerp 1530"],
+  ["trent", 4, "e", "Council of Trent", "1546", "The Catholic council declares the Vulgate the authentic Bible for teaching and fixes the canon to include Tobit, Judith, Wisdom, Sirach, Baruch and 1–2 Maccabees.", "Session 4, 8 April 1546"],
+  ["geneva", 4, "t", "Geneva Bible", "1560", "Made by English Protestant exiles in Geneva. The first English Bible with numbered verses throughout, and full of study notes. The Bible of Shakespeare and of the Pilgrims.", "Geneva 1560",
+    { isa: ["Behold, the *virgin* shall conceive and bear a son, and she shall call his name Immanuel.", "Spelling modernized."] }],
+  ["douay", 4, "t", "Douay-Rheims", "1582 (NT), 1609–10 (OT)", "English Catholic translation from the Vulgate, made by exiles in Rheims and Douai. It keeps many Latin terms and includes the deuterocanonical books in their places.", "Rheims 1582; Douai 1609–10",
+    { deut: ["Hear, O Israel, the *Lord* our God is one Lord.", "Challoner’s revision (1750)."],
+      isa: ["Behold a *virgin* shall conceive, and bear a son, and his name shall be called Emmanuel.", "Challoner’s revision (1750)."] }],
+  ["reinavalera", 4, "t", "Reina-Valera", "1569, revised 1602", "Casiodoro de Reina’s Spanish Bible from Hebrew and Greek, revised by Cipriano de Valera. Its revisions remain the most widely read Protestant Bible in Spanish.", "Biblia del Oso, Basel 1569",
+    { deut: ["Oye, Israel: *Jehová* nuestro Dios, *Jehová* uno es.", "‘Hear, Israel: Jehovah our God, Jehovah is one.’ (1960 revision)"],
+      isa: ["He aquí que la *virgen* concebirá, y dará a luz un hijo, y llamará su nombre Emanuel.", "‘Behold, the virgin shall conceive…’ (1960 revision)"] }],
+  ["kjv", 4, "t", "King James Version", "1611", "Forty-seven scholars in six companies revise earlier English Bibles against the Hebrew of the Rabbinic Bible and the Greek Textus Receptus, leaning heavily on Tyndale. It prints YHWH as ‘LORD’ in capitals.", "Authorized Version, London 1611",
+    { deut: ["Hear, O Israel: The *LORD* our God is one *LORD*:", "Capitals mark where the Hebrew has YHWH."],
+      isa: ["Behold, a *virgin* shall conceive, and bear a son, and shall call his name Immanuel.", ""] }],
+
+  ["tischendorf", 5, "p", "Tischendorf", "1815–1874", "Constantin von Tischendorf, the German scholar who brought Codex Sinaiticus from Sinai to Europe (1844, 1859) and published critical Greek New Testaments.", "Codex Sinaiticus, 1859"],
+  ["westcotthort", 5, "w", "Westcott & Hort", "1881", "Two Cambridge scholars build a Greek New Testament from the oldest manuscripts, especially Vaticanus and Sinaiticus, instead of the late Byzantine copies behind the Textus Receptus.", "The New Testament in the Original Greek"],
+  ["rv", 5, "t", "Revised Version", "1881–1885", "The first official revision of the King James, using Westcott and Hort’s Greek. Changes such as dropping ‘For thine is the kingdom…’ from Matthew 6:13 stir controversy.", "Oxford & Cambridge 1881–85"],
+  ["asv", 5, "t", "American Standard Version", "1901", "The American edition of the Revised Version. It prints the divine name as ‘Jehovah’ throughout the Old Testament.", "Thomas Nelson 1901",
+    { deut: ["Hear, O Israel: *Jehovah* our God is one *Jehovah*:", "‘Jehovah’ combines the consonants of YHWH with the vowels of Adonai that the Masoretes wrote under it."],
+      isa: ["Behold, a *virgin* shall conceive, and bear a son, and shall call his name Immanuel.", ""] }],
+  ["nestle", 5, "w", "Nestle-Aland Greek NT", "1898 onward (28th ed. 2012)", "Eberhard Nestle’s handbook text, first built by comparing Tischendorf, Westcott-Hort and a third edition, later edited by Kurt Aland and others. With the UBS edition it is the Greek behind almost every modern translation.", "Novum Testamentum Graece"],
+  ["kittel", 5, "w", "Biblia Hebraica", "1906; BHS 1977", "Rudolf Kittel’s critical Hebrew Bible. From the 1937 edition, and in its successor Biblia Hebraica Stuttgartensia, it prints the Leningrad Codex with variant readings from the Samaritan, Greek and other versions in the notes.", "BHK 1906; BHS 1977"],
+  ["jps1917", 5, "t", "JPS Tanakh (1917)", "1917", "The Jewish Publication Society’s first English Bible, by Jewish scholars for English-speaking Jews. It follows the Masoretic text and the Jewish order of books, and borrows much of its English from the King James and Revised Version.", "The Holy Scriptures According to the Masoretic Text",
+    { deut: ["Hear, O Israel: the *LORD* our God, the LORD is one.", ""],
+      isa: ["Behold, the *young woman* shall conceive, and bear a son, and shall call his name Immanuel.", "A Jewish translation goes back to the Hebrew almah."] }],
+  ["dssfind", 5, "e", "Qumran Discovery", "1947–1956", "Bedouin shepherds find the first scrolls in a cave near the Dead Sea; eleven caves follow. The Great Isaiah Scroll, about a thousand years older than the Leningrad Codex, shows how faithfully the Hebrew had been copied.", "Qumran Cave 1, 1947"],
+
+  ["rsv", 6, "t", "Revised Standard Version", "1952", "Revision of the ASV in modern English, and the first major English Bible to use the Dead Sea Scrolls, adopting 13 readings from the Great Isaiah Scroll. ‘Young woman’ at Isaiah 7:14 provoked protests, including public burnings.", "National Council of Churches",
+    { deut: ["Hear, O Israel: The *LORD* our God is one LORD;", ""],
+      isa: ["Behold, a *young woman* shall conceive and bear a son, and shall call his name Immanuel.", "The switch from ‘virgin’ made this the most argued-over verse of 1952."] }],
+  ["nasb", 6, "t", "New American Standard", "1971", "Evangelical revision of the ASV, known for word-for-word literalness. It returns to ‘LORD’ for the divine name.", "Lockman Foundation",
+    { deut: ["Hear, O Israel! The *LORD* is our God, the LORD is one!", "1995 edition."],
+      isa: ["Behold, a *virgin* will be with child and bear a son, and she will call His name Immanuel.", "1995 edition."] }],
+  ["niv", 6, "t", "New International Version", "1978; revised 2011", "Translated by an international team of evangelical scholars from the critical Hebrew and Greek texts, aiming for clear meaning over word-for-word form. The best-selling modern English Bible.", "Biblica",
+    { deut: ["Hear, O Israel: The *LORD* our God, the LORD is one.", ""],
+      isa: ["The *virgin* will conceive and give birth to a son, and will call him Immanuel.", ""] }],
+  ["nkjv", 6, "t", "New King James Version", "1982", "Updates the King James language but keeps the Textus Receptus as its Greek base.", "Thomas Nelson",
+    { deut: ["Hear, O Israel: The *LORD* our God, the LORD is one!", ""],
+      isa: ["Behold, the *virgin* shall conceive and bear a Son, and shall call His name Immanuel.", ""] }],
+  ["njps", 6, "t", "JPS Tanakh (1985)", "1985", "A new Jewish translation from the Masoretic text that renders meaning phrase by phrase, notes where the Hebrew is uncertain, and draws on medieval Jewish commentators.", "Jewish Publication Society",
+    { deut: ["Hear, O Israel! The *LORD* is our God, the LORD *alone*.", "‘Alone’ rather than ‘one’: a reading as old as Rashi."],
+      isa: ["Look, the *young woman* is with child and about to give birth to a son. Let her name him Immanuel.", ""] }],
+  ["nrsv", 6, "t", "New Revised Standard", "1989; updated 2021", "Revision of the RSV by a committee that included Protestant, Catholic, Orthodox and Jewish scholars. It adds a whole paragraph to 1 Samuel 10 from a Qumran scroll.", "NCC; NRSVue 2021",
+    { deut: ["Hear, O Israel: The *LORD* is our God, the LORD *alone*.", ""],
+      isa: ["Look, the *young woman* is with child and shall bear a son, and shall name him Immanuel.", ""] }],
+  ["nlt", 6, "t", "New Living Translation", "1996", "Began as a revision of the paraphrase The Living Bible and was reworked from the Hebrew and Greek into natural modern English.", "Tyndale House",
+    { deut: ["Listen, O Israel! The *LORD* is our God, the LORD *alone*.", ""],
+      isa: ["Look! The *virgin* will conceive a child! She will give birth to a son and will call him Immanuel (which means ‘God is with us’).", ""] }],
+  ["esv", 6, "t", "English Standard Version", "2001", "A light revision of the 1971 RSV by evangelical scholars, returning ‘virgin’ at Isaiah 7:14.", "Crossway",
+    { deut: ["Hear, O Israel: The *LORD* our God, the LORD is one.", ""],
+      isa: ["Behold, the *virgin* shall conceive and bear a son, and shall call his name Immanuel.", ""] }],
+  ["nabre", 6, "t", "New American Bible", "2011 (revised ed.)", "The Catholic Bible read at Mass in the United States, translated from Hebrew and Greek with the deuterocanonical books. It succeeds the Douay-Rheims tradition in American Catholic use.", "USCCB",
+    { deut: ["Hear, O Israel! The *LORD* is our God, the LORD *alone*!", ""],
+      isa: ["the *young woman*, pregnant and about to bear a son, shall name him Emmanuel.", "A Catholic translation that reads ‘young woman’."] }],
+  ["csb", 6, "t", "Christian Standard Bible", "2017", "Revision of the Holman CSB (2004), aiming for ‘optimal equivalence’ between literal and readable.", "Holman / Lifeway",
+    { deut: ["Listen, Israel: The *LORD* our God, the LORD is one.", ""],
+      isa: ["See, the *virgin* will conceive, have a son, and name him Immanuel.", ""] }]
+];
+
+const S_EDGES = [
+  ["soferim", "samaritanpent", "hebrew", "Both descend from Persian-era Torah scrolls; the Samaritan line splits off with its own script and readings.", "c"],
+  ["soferim", "dss", "hebrew", "Qumran’s scribes copy the same scriptures in several textual forms."],
+  ["soferim", "septuagint", "hebrew greekot", "Translated from Hebrew scrolls sent from Jerusalem, according to the Letter of Aristeas."],
+  ["septuagint", "ntwriters", "greekot", "New Testament writers quote the Septuagint far more often than the Hebrew."],
+  ["soferim", "yavneh", "hebrew canon", "The rabbis inherit the text favored by Temple circles, the ancestor of the Masoretic text."],
+  ["yavneh", "akiva", "canon interp", "Akiva is the leading voice in the debates over which books are holy."],
+  ["septuagint", "aquila", "greekot", "Aquila makes a literal Greek version for Jews, displacing the Septuagint that the church had adopted.", "c"],
+  ["akiva", "aquila", "hebrew interp", "Jerome says Aquila was Akiva’s student, translating with Akiva’s letter-by-letter method.", "d"],
+  ["yavneh", "mishnah", "canon interp", "The debates over holy books are recorded in the Mishnah (m. Yadayim 3:5)."],
+  ["akiva", "mishnah", "interp", "Much of the Mishnah comes through Akiva’s students."],
+  ["septuagint", "theodotion", "greekot", "Revises the Greek to match the Hebrew more closely."],
+  ["septuagint", "symmachus", "greekot", "A fresh Greek version in better style."],
+  ["aquila", "origenhex", "greekot", "The third column."],
+  ["symmachus", "origenhex", "greekot", "The fourth column."],
+  ["septuagint", "origenhex", "greekot", "The fifth column, marked where it differs from the Hebrew."],
+  ["theodotion", "origenhex", "greekot", "The sixth column."],
+  ["yavneh", "origenhex", "hebrew", "The first column is the Hebrew text used by the rabbis; Origen consults Jewish scholars."],
+  ["ntwriters", "p52", "greeknt", "A copy of John made within decades of its writing."],
+  ["ntwriters", "oldlatin", "greeknt latin", "The Gospels and letters put into Latin."],
+  ["septuagint", "oldlatin", "greekot latin", "The Old Latin Old Testament is translated from the Greek, not the Hebrew."],
+  ["ntwriters", "peshitta", "greeknt aramaic", "The New Testament in Syriac."],
+  ["yavneh", "peshitta", "hebrew aramaic", "Its Old Testament follows a Hebrew text close to the rabbis’.", "d"],
+  ["yavneh", "onkelos", "aramaic interp", "The rabbis’ reading tradition put into Aramaic for synagogue use."],
+  ["mishnah", "talmud", "interp", "The Talmud is commentary on the Mishnah."],
+  ["septuagint", "vaticanus", "greekot", "The Greek Old Testament bound with the New."],
+  ["ntwriters", "vaticanus", "greeknt", "Among the oldest complete copies of the Gospels and letters."],
+  ["septuagint", "sinaiticus", "greekot", "The Greek Old Testament bound with the New."],
+  ["ntwriters", "sinaiticus", "greeknt", "The oldest complete New Testament."],
+  ["ntwriters", "athanasius367", "canon", "Settles which early Christian writings count: 27 books."],
+  ["yavneh", "athanasius367", "canon", "His Old Testament list follows the Hebrew canon closely."],
+  ["oldlatin", "vulgate", "latin", "Jerome starts by revising the Old Latin Gospels (383)."],
+  ["origenhex", "vulgate", "hebrew greekot", "Jerome studies the Hexapla in the library at Caesarea."],
+  ["yavneh", "vulgate", "hebrew interp", "Jerome learns Hebrew from Jewish teachers and translates from the ‘Hebrew truth’."],
+  ["septuagint", "vulgate", "canon", "Keeps the Septuagint’s extra books, though Jerome says they are outside the canon."],
+  ["athanasius367", "vulgate", "canon", "Jerome shares the view that the extra books are for reading, not for doctrine."],
+  ["ntwriters", "ulfilas", "greeknt other", "Translated from Greek into Gothic."],
+  ["septuagint", "ulfilas", "greekot other", "The Gothic Old Testament comes from the Greek."],
+  ["talmud", "masoretes", "hebrew interp", "Scribal rules and reading traditions carried into the Masoretic work."],
+  ["onkelos", "bomberg", "aramaic", "Printed beside the Hebrew in the Rabbinic Bible."],
+  ["masoretes", "aleppo", "hebrew", "Pointed by Aaron ben Asher himself."],
+  ["masoretes", "leningrad", "hebrew", "Copied from Ben Asher exemplars."],
+  ["ntwriters", "byzantine", "greeknt", "Copied and recopied across the Greek-speaking church."],
+  ["talmud", "rashi", "interp", "Rashi’s commentary on the Talmud is printed on every page of it."],
+  ["masoretes", "rashi", "hebrew interp", "Rashi reads the Masoretic text for its plain sense (peshat)."],
+  ["rashi", "lyra", "interp", "Lyra cites ‘Rabbi Salomon’ (Rashi) constantly for the literal sense."],
+  ["vulgate", "lyra", "latin interp", "Lyra comments on the Vulgate."],
+  ["vulgate", "wycliffe", "latin english", "Translated from the Latin, not from Hebrew or Greek."],
+  ["vulgate", "gutenberg", "latin", "The Vulgate becomes the first printed Bible."],
+  ["masoretes", "bomberg", "hebrew", "Jacob ben Hayyim prints the Masoretic text and notes from late medieval manuscripts."],
+  ["rashi", "bomberg", "interp", "Rashi printed around the text."],
+  ["byzantine", "erasmus", "greeknt", "Erasmus works from a handful of late manuscripts in Basel."],
+  ["vulgate", "erasmus", "latin", "His new Latin beside the Greek challenges the Vulgate’s wording.", "c"],
+  ["erasmus", "luther", "greeknt other", "Luther translates the New Testament from Erasmus’ second edition."],
+  ["masoretes", "luther", "hebrew other", "The Old Testament comes from a printed Masoretic Bible (Brescia, 1494)."],
+  ["lyra", "luther", "interp", "The old saying: ‘If Lyra had not piped, Luther would not have danced.’"],
+  ["vulgate", "luther", "canon", "Luther sets the Vulgate’s extra books apart as ‘Apocrypha’."],
+  ["erasmus", "tyndale", "greeknt english", "Tyndale translates from Erasmus’ Greek."],
+  ["luther", "tyndale", "english other", "Tyndale follows Luther’s layout and adapts many of his prefaces."],
+  ["masoretes", "tyndale", "hebrew english", "The Torah (1530) is translated directly from Hebrew."],
+  ["luther", "trent", "canon", "Trent answers the Reformers: the Vulgate is authentic and the extra books are fully scripture.", "c"],
+  ["vulgate", "trent", "latin canon", "Declared the authentic Bible for teaching."],
+  ["tyndale", "geneva", "english", "Geneva revises Tyndale and Coverdale."],
+  ["erasmus", "geneva", "greeknt", "Through Beza’s editions of the Greek."],
+  ["bomberg", "geneva", "hebrew", "The Old Testament is checked against the Hebrew."],
+  ["vulgate", "douay", "latin english", "Translated from the Vulgate."],
+  ["trent", "douay", "canon", "Follows Trent’s canon, with the deuterocanonical books in place."],
+  ["geneva", "douay", "english", "Its notes argue against Protestant readings.", "c"],
+  ["erasmus", "reinavalera", "greeknt other", "The New Testament from the Textus Receptus."],
+  ["bomberg", "reinavalera", "hebrew other", "The Old Testament from the Hebrew."],
+  ["tyndale", "kjv", "english", "Much of the King James New Testament keeps Tyndale’s words."],
+  ["geneva", "kjv", "english", "One of the English Bibles the translators were told to consult."],
+  ["douay", "kjv", "english", "The translators borrowed some vocabulary from the Rheims New Testament."],
+  ["bomberg", "kjv", "hebrew", "The Old Testament is checked against the Rabbinic Bible."],
+  ["erasmus", "kjv", "greeknt", "Through Beza’s editions of the Textus Receptus."],
+  ["sinaiticus", "tischendorf", "greeknt", "Brings the codex from Sinai to Europe."],
+  ["tischendorf", "westcotthort", "greeknt", "Builds on Tischendorf’s editions and his discovery."],
+  ["vaticanus", "westcotthort", "greeknt", "Vaticanus is their most trusted witness."],
+  ["westcotthort", "rv", "greeknt english", "The revisers adopt a Greek text close to Westcott and Hort’s."],
+  ["kjv", "rv", "english", "An official revision of the King James."],
+  ["rv", "asv", "english", "The American edition of the Revised Version."],
+  ["leningrad", "kittel", "hebrew", "Printed as the base text from 1937."],
+  ["westcotthort", "nestle", "greeknt", "Nestle’s text starts as an average of Westcott-Hort, Tischendorf and a third edition."],
+  ["tischendorf", "nestle", "greeknt", "One of Nestle’s three source editions."],
+  ["dss", "dssfind", "hebrew", "Hidden around 68 CE, found in 1947."],
+  ["masoretes", "jps1917", "hebrew", "Follows the Masoretic text."],
+  ["kjv", "jps1917", "english", "Borrows much of its English from the King James and Revised Version."],
+  ["asv", "rsv", "english", "The RSV revises the ASV."],
+  ["dssfind", "rsv", "hebrew", "The first English Bible to use the Great Isaiah Scroll."],
+  ["nestle", "rsv", "greeknt", "Translated from a critical Greek text."],
+  ["kittel", "rsv", "hebrew", "Translated from the critical Hebrew text."],
+  ["asv", "nasb", "english", "A more literal revision of the ASV."],
+  ["rsv", "nasb", "english", "Made partly in reaction to the RSV.", "c"],
+  ["nestle", "nasb", "greeknt", "Translated from the Nestle text."],
+  ["kittel", "niv", "hebrew", "Translated from Biblia Hebraica."],
+  ["nestle", "niv", "greeknt", "Translated from the critical Greek text."],
+  ["dssfind", "niv", "hebrew", "Consults the Dead Sea Scrolls."],
+  ["kjv", "nkjv", "english", "Updates the King James wording."],
+  ["erasmus", "nkjv", "greeknt", "Keeps the Textus Receptus as its base."],
+  ["kittel", "njps", "hebrew", "The Masoretic text as printed in Biblia Hebraica."],
+  ["jps1917", "njps", "english", "Replaces the 1917 JPS translation."],
+  ["rashi", "njps", "interp", "Draws on medieval Jewish commentators such as Rashi."],
+  ["rsv", "nrsv", "english", "Revises the RSV."],
+  ["dssfind", "nrsv", "hebrew", "Adds a paragraph at the end of 1 Samuel 10 from the Qumran Samuel scroll."],
+  ["nestle", "nrsv", "greeknt", "Translated from the critical Greek text."],
+  ["kittel", "nrsv", "hebrew", "Translated from Biblia Hebraica Stuttgartensia."],
+  ["kittel", "nlt", "hebrew", "Retranslated from the Hebrew."],
+  ["nestle", "nlt", "greeknt", "Retranslated from the Greek."],
+  ["rsv", "esv", "english", "Revises the 1971 RSV text."],
+  ["nestle", "esv", "greeknt", "Translated from the critical Greek text."],
+  ["kittel", "esv", "hebrew", "Translated from Biblia Hebraica Stuttgartensia."],
+  ["douay", "nabre", "english", "Succeeds the Douay-Rheims tradition in American Catholic use."],
+  ["trent", "nabre", "canon", "Includes the deuterocanonical books."],
+  ["kittel", "nabre", "hebrew", "Translated from the Hebrew."],
+  ["nestle", "nabre", "greeknt", "Translated from the critical Greek text."],
+  ["dssfind", "nabre", "hebrew", "Uses Qumran readings in Samuel and elsewhere."],
+  ["kittel", "csb", "hebrew", "Translated from the Hebrew."],
+  ["nestle", "csb", "greeknt", "Translated from the critical Greek text."]
+];
+
+const VERSES = {
+  deut: {
+    label: "Deuteronomy 6:4",
+    chip: "Deut 6:4 · The Shema",
+    intro: "Judaism’s central creed. Watch God’s name YHWH: the Masoretes point it with the vowels of Adonai, the Greek says Kyrios, the Latin Dominus, Luther HERR and the King James LORD in capitals, while the ASV and Reina-Valera spell out ‘Jehovah’. Modern translators also split over ‘the LORD is one’ and ‘the LORD alone’."
+  },
+  isa: {
+    label: "Isaiah 7:14",
+    chip: "Isaiah 7:14 · Virgin or young woman?",
+    intro: "The Hebrew says almah, a young woman of marriageable age. The Septuagint chose parthenos, usually ‘virgin’, and Matthew quoted it for Jesus’ birth. Jewish translators went back to ‘young woman’, and English Bibles have divided along the same line ever since."
+  }
+};
+
+// pairs of nodes that appear on both maps
+const ALSO = [["lxx", "septuagint"], ["origen", "origenhex"], ["athanasius", "athanasius367"], ["rabbis", "yavneh"], ["ezra", "soferim"], ["essenes", "dss"], ["john", "p52"]];
+
+/* ---------------- maps ---------------- */
+const MAPS = {
+  ideas: {
+    id: "ideas", threads: IDEAS, eras: ERAS, nodes: NODES, edges: EDGES, hub: "jesus",
+    kinds: { p: "Person", g: "Community or sect", w: "Writing or book", e: "Church council" },
+    inLabel: "Received from", outLabel: "Passed on to", refsLabel: "Key texts", span: "~2,100",
+    statNoun: "ideas about God",
+    lede: "How Israel’s ideas about God moved from person to person: from <b>Abraham</b> through the prophets, the exile and the rival <b>Jewish sects</b>, to <b>Jesus</b>, the apostles and the <b>church fathers</b> who wrote the Nicene Creed.",
+    introTitle: "Follow the witnesses",
+    intro: "Time runs down the page, from Abraham (about 1800 BCE by tradition) to the Council of Nicaea in 325 CE. Each line is a documented handoff: a quotation, a teacher and student, a community’s inheritance, or a quarrel.",
+    how: "<b>Tap anyone</b> to see who shaped them and whom they shaped. <b>Pick an idea</b> in the bar above to light up its thread through the centuries.",
+    mobile: "Time runs down the page, from about 1800 BCE to 325 CE. <b style=\"color:var(--ink)\">Tap anyone</b> to see who shaped them and whom they shaped. <b style=\"color:var(--ink)\">Pick an idea</b> above to follow its thread.",
+    starts: ["moses", "daniel", "pharisees", "jesus", "paul", "nicaea"]
+  },
+  scripture: {
+    id: "scripture", threads: S_THREADS, eras: S_ERAS, nodes: S_NODES, edges: S_EDGES, hub: "",
+    kinds: { p: "Person", g: "Community", w: "Manuscript or source text", t: "Translation", e: "Discovery or council" },
+    inLabel: "Drew on", outLabel: "Fed into", refsLabel: "Where to find it", span: "~2,400",
+    statNoun: "streams",
+    lede: "How the Bible itself was copied, translated and argued over: from the <b>Temple scribes</b> and <b>early rabbis</b> through the Septuagint, the Masoretes and Jerome, to <b>Luther, Tyndale and the King James</b>, and on to the <b>translations on your phone</b> today.",
+    introTitle: "Follow the text",
+    intro: "Time runs down the page, from the scribes of the Second Temple to the translations of the last few decades. Each line shows a text being copied, translated or revised from another, or made in reaction to it.",
+    how: "<b>Tap any Bible</b> and choose <b>Whole lineage</b> to see its full family tree. <b>Follow a verse</b> to read the same words changing across 2,000 years.",
+    mobile: "Time runs down the page, from about 450 BCE to today. <b style=\"color:var(--ink)\">Tap any Bible</b> to see what it drew on. <b style=\"color:var(--ink)\">Follow a verse</b> above to watch the words change.",
+    starts: ["masoretes", "septuagint", "vulgate", "kjv", "dssfind", "niv"]
+  }
+};
+
+/* ---------------- model ---------------- */
+function build(def) {
+  const threadById = Object.fromEntries(def.threads.map(t => [t.id, t]));
+  const order = def.threads.map(t => t.id);
+  const nodes = def.nodes.map(([id, era, kind, name, date, text, refs, v], idx) => ({ id, era, kind, name, date, text, refs, v: v || null, idx, in: [], out: [] }));
+  const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+  const edges = def.edges.map(([s, t, th, note, flag], i) => {
+    const e = { i, s: byId[s], t: byId[t], th: th.split(" "), note, flag: flag || "" };
+    if (!e.s || !e.t || e.th.some(x => !threadById[x])) console.warn("bad edge", def.id, s, t, th);
+    e.s.out.push(e); e.t.in.push(e);
+    return e;
+  });
+  nodes.forEach(n => {
+    n.deg = n.in.length + n.out.length;
+    n.th = [...new Set([...n.in, ...n.out].flatMap(e => e.th))].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  });
+  return { ...def, nodes, byId, edges, threadById };
+}
+const MODELS = { ideas: build(MAPS.ideas), scripture: build(MAPS.scripture) };
+const mapOf = {};
+Object.values(MODELS).forEach(m => m.nodes.forEach(n => {
+  if (mapOf[n.id]) console.warn("duplicate id", n.id);
+  mapOf[n.id] = m.id;
+}));
+const alsoOf = {};
+ALSO.forEach(([a, b]) => { alsoOf[a] = b; alsoOf[b] = a; });
+
+let M = MODELS.ideas;
+const state = { sel: null, thread: null, lineage: false, verse: null };
 
 /* ---------------- helpers ---------------- */
 const $ = s => document.querySelector(s);
 const NS = "http://www.w3.org/2000/svg";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmtVerse = s => esc(s).replace(/\*([^*]+)\*/g, "<mark>$1</mark>");
 function el(tag, attrs = {}, parent) {
   const n = document.createElementNS(NS, tag);
   for (const k in attrs) n.setAttribute(k, attrs[k]);
@@ -690,25 +1043,45 @@ function wrapLabel(name, max) {
   if (lines.length > 2) return [lines[0], lines.slice(1).join(" ")];
   return lines;
 }
-function radius(n) { return n.id === "jesus" ? 19 : 9 + Math.min(n.deg, 14) * 0.45; }
+function radius(n) { return n.id === M.hub ? 19 : 9 + Math.min(n.deg, 14) * 0.45; }
+function hexPoints(cx, cy, q) {
+  const pts = [];
+  for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; pts.push(`${(cx + q * Math.cos(a)).toFixed(1)},${(cy + q * Math.sin(a)).toFixed(1)}`); }
+  return pts.join(" ");
+}
+const hasVerse = n => !!(state.verse && n.v && n.v[state.verse]);
 
-/* ---------------- stats ---------------- */
-$("#stats").innerHTML =
-  `<span><b>${nodes.length}</b> people, communities & writings</span>` +
-  `<span><b>${edges.length}</b> links</span>` +
-  `<span><b>${IDEAS.length}</b> ideas about God</span>` +
-  `<span><b>~2,100</b> years</span>`;
-
-/* ---------------- idea chips ---------------- */
-function chipHTML(idea, pressed, cls = "chip") {
-  return `<button type="button" class="${cls}" data-idea="${idea.id}" aria-pressed="${pressed}" style="--c:${idea.color}"><span class="dot"></span>${esc(idea.label)}</button>`;
+/* ---------------- header, tabs, chips ---------------- */
+function renderHeader() {
+  $("#lede").innerHTML = M.lede;
+  $("#introMobile").innerHTML = M.mobile;
+  $("#stats").innerHTML =
+    `<span><b>${M.nodes.length}</b> people, communities & texts</span>` +
+    `<span><b>${M.edges.length}</b> links</span>` +
+    `<span><b>${M.threads.length}</b> ${M.statNoun}</span>` +
+    `<span><b>${M.span}</b> years</span>`;
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.map === M.id)));
+  $("#verseRow").hidden = M.id !== "scripture";
+}
+function chipHTML(t, pressed, attr = "data-thread") {
+  return `<button type="button" class="chip" ${attr}="${t.id}" aria-pressed="${pressed}" style="--c:${t.color}"><span class="dot"></span>${esc(t.label)}</button>`;
 }
 function renderChips() {
-  $("#chips").innerHTML = IDEAS.map(i => chipHTML(i, state.idea === i.id)).join("");
+  $("#chips").innerHTML = M.threads.map(t => chipHTML(t, state.thread === t.id)).join("");
+  $("#verseRow").innerHTML = `<span class="label">Follow a verse</span>` +
+    Object.entries(VERSES).map(([id, v]) => chipHTML({ id, label: v.chip, color: "#d8b25a" }, state.verse === id, "data-verse")).join("");
 }
 $("#chips").addEventListener("click", e => {
-  const b = e.target.closest("[data-idea]");
-  if (b) setIdea(state.idea === b.dataset.idea ? null : b.dataset.idea);
+  const b = e.target.closest("[data-thread]");
+  if (b) setThread(state.thread === b.dataset.thread ? null : b.dataset.thread);
+});
+$("#verseRow").addEventListener("click", e => {
+  const b = e.target.closest("[data-verse]");
+  if (b) setVerse(state.verse === b.dataset.verse ? null : b.dataset.verse);
+});
+document.querySelector(".tabs").addEventListener("click", e => {
+  const b = e.target.closest("[data-map]");
+  if (b) { setMap(b.dataset.map); updateHash(); }
 });
 
 /* ---------------- graph ---------------- */
@@ -723,12 +1096,10 @@ function layout(width) {
   const rowH = width < 520 ? 84 : 90;
   let y = 0;
   const bands = [];
-  ERAS.forEach((era, ei) => {
-    const list = nodes.filter(n => n.era === ei);
+  M.eras.forEach((era, ei) => {
+    const list = M.nodes.filter(n => n.era === ei);
     list.forEach((n, i) => {
-      const src = n.in.map(e => e.s).filter(s => s.era < ei);
-      const dst = n.out.map(e => e.t).filter(t => t.era < ei);
-      const refs = src.concat(dst);
+      const refs = n.in.map(e => e.s).concat(n.out.map(e => e.t)).filter(s => s.era < ei);
       n.bary = refs.length ? refs.reduce((a, s) => a + s.x, 0) / refs.length : pad + inner * (i + 0.5) / list.length;
     });
     list.sort((a, b) => a.bary - b.bary);
@@ -761,23 +1132,23 @@ function edgePath(e) {
   return `M${a.x},${y1} C${a.x},${y1 + dy} ${b.x},${y2 - dy} ${b.x},${y2}`;
 }
 
-function nodeShape(n, g) {
-  const r = radius(n);
-  if (n.kind === "g") el("rect", { class: "shape", x: n.x - r, y: n.y - r, width: r * 2, height: r * 2, rx: 4 }, g);
-  else if (n.kind === "w") {
+function drawShape(kind, x, y, r, g) {
+  if (kind === "g") el("rect", { class: "shape", x: x - r, y: y - r, width: r * 2, height: r * 2, rx: 4 }, g);
+  else if (kind === "w") {
     const q = r * 1.22;
-    el("polygon", { class: "shape", points: `${n.x},${n.y - q} ${n.x + q},${n.y} ${n.x},${n.y + q} ${n.x - q},${n.y}` }, g);
-  } else {
-    el("circle", { class: "shape", cx: n.x, cy: n.y, r }, g);
-    if (n.kind === "e") el("circle", { class: "ring", cx: n.x, cy: n.y, r: r + 4 }, g);
+    el("polygon", { class: "shape", points: `${x},${y - q} ${x + q},${y} ${x},${y + q} ${x - q},${y}` }, g);
+  } else if (kind === "t") el("polygon", { class: "shape", points: hexPoints(x, y, r * 1.12) }, g);
+  else {
+    el("circle", { class: "shape", cx: x, cy: y, r }, g);
+    if (kind === "e") el("circle", { class: "ring", cx: x, cy: y, r: r + 4 }, g);
   }
 }
 
 function seeded(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
 
-function render() {
+function render(force) {
   const width = Math.round($("#stage").clientWidth);
-  if (!width || width === W) return;
+  if (!width || (width === W && !force)) return;
   W = width;
   const { bands, height } = layout(W);
   svg.setAttribute("viewBox", `0 0 ${W} ${height}`);
@@ -788,10 +1159,8 @@ function render() {
   const gBands = el("g", {}, svg);
   bands.forEach((b, i) => {
     if (i % 2 === 0) el("rect", { class: "band-fill", x: 0, y: b.top, width: W, height: b.bottom - b.top }, gBands);
-    const t = el("text", { class: "band-name", x: 14, y: b.top + 22 }, gBands);
-    t.textContent = b.era.name;
-    const d = el("text", { class: "band-date", x: 14, y: b.top + 38 }, gBands);
-    d.textContent = b.era.dates;
+    el("text", { class: "band-name", x: 14, y: b.top + 22 }, gBands).textContent = b.era.name;
+    el("text", { class: "band-date", x: 14, y: b.top + 38 }, gBands).textContent = b.era.dates;
   });
 
   const rnd = seeded(7);
@@ -802,7 +1171,7 @@ function render() {
   }
 
   const gEdges = el("g", { id: "edges" }, svg);
-  edgeEls = edges.map(e => {
+  edgeEls = M.edges.map(e => {
     const cls = "edge" + (e.flag === "c" ? " clash" : e.flag === "d" ? " disputed" : "");
     const p = el("path", { class: cls, d: edgePath(e) }, gEdges);
     p.__e = e;
@@ -811,17 +1180,14 @@ function render() {
 
   const gNodes = el("g", {}, svg);
   nodeEls = {};
-  nodes.forEach(n => {
-    const g = el("g", { class: "node" + (n.id === "jesus" ? " hub" : ""), tabindex: 0, role: "button", "aria-label": `${n.name}, ${n.date}` }, gNodes);
+  M.nodes.forEach(n => {
+    const g = el("g", { class: "node" + (n.id === M.hub ? " hub" : ""), tabindex: 0, role: "button", "aria-label": `${n.name}, ${n.date}` }, gNodes);
     el("rect", { class: "hit", x: n.x - 44, y: n.y - 22, width: 88, height: 60 }, g);
-    nodeShape(n, g);
+    drawShape(n.kind, n.x, n.y, radius(n), g);
     const lines = wrapLabel(n.name, W < 520 ? 13 : 16);
     const r = radius(n) + (n.kind === "w" ? 3 : 0);
     const t = el("text", { x: n.x, y: n.y + r + 15 }, g);
-    lines.forEach((ln, i) => {
-      const s = el("tspan", { x: n.x, dy: i ? 14 : 0 }, t);
-      s.textContent = ln;
-    });
+    lines.forEach((ln, i) => { el("tspan", { x: n.x, dy: i ? 14 : 0 }, t).textContent = ln; });
     g.addEventListener("click", ev => { ev.stopPropagation(); select(n.id); });
     g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); } });
     nodeEls[n.id] = g;
@@ -850,150 +1216,216 @@ function lineageEdges(n) {
   return set;
 }
 
-function activeEdges() {
-  const sel = state.sel && byId[state.sel];
+function activeSets() {
+  const sel = state.sel && M.byId[state.sel];
+  const onNodes = new Set();
   let set = null;
-  if (sel) set = state.lineage ? lineageEdges(sel) : new Set([...sel.in, ...sel.out]);
-  if (state.idea) {
-    const base = set ? [...set] : edges;
-    set = new Set(base.filter(e => e.ideas.includes(state.idea)));
+  if (sel) {
+    set = state.lineage ? lineageEdges(sel) : new Set([...sel.in, ...sel.out]);
+    if (state.thread) set = new Set([...set].filter(e => e.th.includes(state.thread)));
+    onNodes.add(sel.id);
+  } else if (state.thread) {
+    set = new Set(M.edges.filter(e => e.th.includes(state.thread)));
+  } else if (state.verse) {
+    set = new Set(M.edges.filter(e => hasVerse(e.s) && hasVerse(e.t)));
+    M.nodes.filter(hasVerse).forEach(n => onNodes.add(n.id));
   }
-  return set;
+  if (set) set.forEach(e => { onNodes.add(e.s.id); onNodes.add(e.t.id); });
+  return { set, onNodes };
 }
 
 function applyState() {
-  const set = activeEdges();
+  const { set, onNodes } = activeSets();
   const filtering = !!set;
-  const onNodes = new Set();
-  if (set) set.forEach(e => { onNodes.add(e.s.id); onNodes.add(e.t.id); });
-  if (state.sel) onNodes.add(state.sel);
+  const verseOnly = !state.sel && !state.thread && !!state.verse;
 
   const front = [];
   edgeEls.forEach(p => {
     const e = p.__e, on = filtering && set.has(e);
     p.classList.toggle("on", on);
     p.classList.toggle("dim", filtering && !on);
-    const col = on ? ideaById[state.idea && e.ideas.includes(state.idea) ? state.idea : e.ideas[0]].color : "";
+    let col = "";
+    if (on) col = verseOnly ? "#d8b25a" : M.threadById[state.thread && e.th.includes(state.thread) ? state.thread : e.th[0]].color;
     p.style.stroke = col;
     if (on) front.push(p);
   });
   const g = svg.querySelector("#edges");
   if (g) front.forEach(p => g.appendChild(p));
 
-  nodes.forEach(n => {
+  M.nodes.forEach(n => {
     const g = nodeEls[n.id];
     if (!g) return;
     const on = onNodes.has(n.id);
     g.classList.toggle("sel", state.sel === n.id);
     g.classList.toggle("on", filtering && on);
     g.classList.toggle("dim", filtering && !on);
-    const shape = g.querySelector(".shape");
-    shape.style.stroke = filtering && on && state.idea && state.sel !== n.id ? ideaById[state.idea].color : "";
+    g.querySelector(".shape").style.stroke = filtering && on && state.thread && state.sel !== n.id ? M.threadById[state.thread].color : "";
   });
 
-  $("#clearAll").hidden = !state.sel && !state.idea;
+  $("#clearAll").hidden = !state.sel && !state.thread && !state.verse;
   const note = $("#ideaNote");
-  if (state.idea) {
-    const idea = ideaById[state.idea];
-    const count = edges.filter(e => e.ideas.includes(idea.id)).length;
+  if (state.thread) {
+    const t = M.threadById[state.thread];
+    const count = M.edges.filter(e => e.th.includes(t.id)).length;
     note.hidden = false;
-    note.style.setProperty("--c", idea.color);
-    note.innerHTML = `<b>${esc(idea.label)}</b> · ${esc(idea.desc)} <span style="white-space:nowrap">${count} links.</span>`;
+    note.style.setProperty("--c", t.color);
+    note.innerHTML = `<b>${esc(t.label)}</b> · ${esc(t.desc)} <span style="white-space:nowrap">${count} links.</span>`;
+  } else if (state.verse) {
+    const count = M.nodes.filter(hasVerse).length;
+    note.hidden = false;
+    note.style.setProperty("--c", "#d8b25a");
+    note.innerHTML = `<b>${esc(VERSES[state.verse].label)}</b> · ${count} versions lit up on the map. ${isPhone() ? "Read them in order below." : "Read them in order in the panel."}`;
   } else note.hidden = true;
   measureBar();
   renderPanel();
 }
 
-function setIdea(id) {
-  state.idea = id;
+function setThread(id) {
+  state.thread = id;
+  if (id) state.verse = null;
   renderChips();
   applyState();
 }
 
+function setVerse(id) {
+  state.verse = id;
+  if (id) { state.thread = null; state.sel = null; state.lineage = false; }
+  renderChips();
+  applyState();
+  if (isPhone()) $("#panel").scrollTop = 0;
+  updateHash();
+}
+
+function setMap(id) {
+  if (M.id === id) return;
+  M = MODELS[id];
+  state.sel = null; state.thread = null; state.verse = null; state.lineage = false;
+  renderHeader();
+  renderChips();
+  render(true);
+}
+
+function updateHash() {
+  const token = state.sel || (state.verse ? "verse-" + state.verse : (M.id === "scripture" ? "scripture" : ""));
+  try { history.replaceState(null, "", location.pathname + location.search + (token ? "#" + token : "")); } catch (_) {}
+}
+
 function select(id, opts = {}) {
+  if (id && mapOf[id] && mapOf[id] !== M.id) setMap(mapOf[id]);
   state.sel = id;
   if (!id) state.lineage = false;
   applyState();
-  try {
-    const url = location.pathname + location.search + (id ? "#" + id : "");
-    history.replaceState(null, "", url);
-  } catch (_) {}
+  updateHash();
   if (id && opts.scroll) scrollToNode(id);
   if (id && isPhone()) $("#panel").scrollTop = 0;
 }
 
 function scrollToNode(id) {
-  const n = byId[id];
+  const n = M.byId[id];
   const top = svg.getBoundingClientRect().top + scrollY + n.y;
   const frac = isPhone() ? 0.2 : 0.4;
   window.scrollTo({ top: Math.max(0, top - innerHeight * frac), behavior: reduceMotion ? "auto" : "smooth" });
 }
 
 /* ---------------- panel ---------------- */
-const legendHTML = `
-  <div class="legend">
-    <div><svg width="26" height="22" viewBox="0 0 26 22"><circle class="shape" cx="13" cy="11" r="8"/></svg>Person</div>
-    <div><svg width="26" height="22" viewBox="0 0 26 22"><rect class="shape" x="5" y="3" width="16" height="16" rx="3"/></svg>Community or sect</div>
-    <div><svg width="26" height="22" viewBox="0 0 26 22"><polygon class="shape" points="13,1 23,11 13,21 3,11"/></svg>Writing or book</div>
-    <div><svg width="26" height="22" viewBox="0 0 26 22"><circle class="shape" cx="13" cy="11" r="6"/><circle class="ring" cx="13" cy="11" r="9.5"/></svg>Church council</div>
-    <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25"/></svg>Passed an idea on</div>
+function legendHTML() {
+  const shape = k => {
+    if (k === "g") return `<rect class="shape" x="5" y="3" width="16" height="16" rx="3"/>`;
+    if (k === "w") return `<polygon class="shape" points="13,1 23,11 13,21 3,11"/>`;
+    if (k === "t") return `<polygon class="shape" points="${hexPoints(13, 11, 9)}"/>`;
+    if (k === "e") return `<circle class="shape" cx="13" cy="11" r="6"/><circle class="ring" cx="13" cy="11" r="9.5"/>`;
+    return `<circle class="shape" cx="13" cy="11" r="8"/>`;
+  };
+  return `<div class="legend">
+    ${Object.entries(M.kinds).map(([k, label]) => `<div><svg width="26" height="22" viewBox="0 0 26 22">${shape(k)}</svg>${esc(label)}</div>`).join("")}
+    <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25"/></svg>${M.id === "scripture" ? "Copied, translated or revised from" : "Passed an idea on"}</div>
     <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25" stroke-dasharray="6 4"/></svg>Clashed or reacted against</div>
     <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25" stroke-dasharray="1.5 4" stroke-linecap="round"/></svg>Link scholars debate</div>
   </div>`;
+}
 
 function linkItem(e, other) {
-  const matched = state.idea && e.ideas.includes(state.idea);
+  const matched = state.thread && e.th.includes(state.thread);
   const tag = e.flag === "c" ? `<span class="tag">clash</span>` : e.flag === "d" ? `<span class="tag">debated</span>` : "";
-  const dots = e.ideas.map(i => `<i style="--c:${ideaById[i].color}" title="${esc(ideaById[i].label)}"></i>`).join("");
+  const dots = e.th.map(i => `<i style="--c:${M.threadById[i].color}" title="${esc(M.threadById[i].label)}"></i>`).join("");
   return `<li><button type="button" data-go="${other.id}" class="${matched ? "match" : ""}">
     <span class="dots" aria-hidden="true">${dots}</span>
     <span class="who">${esc(other.name)}<small>${esc(other.date)}</small>${tag}</span>
-    <span class="note">${esc(e.note)} <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ideas: ${e.ideas.map(i => ideaById[i].label).join(", ")}</span></span>
+    <span class="note">${esc(e.note)}</span>
   </button></li>`;
+}
+
+function verseBlock(v) {
+  const [text, gloss] = v;
+  return `<blockquote class="verse" dir="auto">${fmtVerse(text)}</blockquote>${gloss ? `<p class="gloss">${esc(gloss)}</p>` : ""}`;
 }
 
 function renderPanel() {
   const panel = $("#panel");
-  const n = state.sel && byId[state.sel];
-  document.body.classList.toggle("sheet-open", !!n && isPhone());
-  panel.classList.toggle("open", !!n);
+  const n = state.sel && M.byId[state.sel];
+  const open = !!n || !!(state.verse && M.id === "scripture");
+  document.body.classList.toggle("sheet-open", open && isPhone());
+  panel.classList.toggle("open", open);
+
+  if (!n && state.verse) {
+    const v = VERSES[state.verse];
+    const list = M.nodes.filter(hasVerse).sort((a, b) => a.era - b.era || a.idx - b.idx);
+    panel.innerHTML = `<div class="grab" aria-hidden="true"></div><div class="panel-body">
+      <div class="panel-head">
+        <div><p class="kind">Follow a verse</p><h2>${esc(v.label)}</h2><p class="date">${list.length} versions, oldest first</p></div>
+        <button type="button" class="close" data-close-verse aria-label="Close">×</button>
+      </div>
+      <p class="summary">${esc(v.intro)}</p>
+      <ol class="timeline">${list.map(x => `<li><button type="button" data-go="${x.id}">
+        <span class="who">${esc(x.name)}<small>${esc(x.date)}</small></span>
+        ${verseBlock(x.v[state.verse])}
+      </button></li>`).join("")}</ol>
+    </div>`;
+    return;
+  }
+
   if (!n) {
     panel.innerHTML = `<div class="panel-body intro-desktop">
       <p class="kind">How to read the map</p>
-      <h2>Follow the witnesses</h2>
-      <p class="summary">Time runs down the page, from Abraham (about 1800 BCE by tradition) to the Council of Nicaea in 325 CE. Each line is a documented handoff: a quotation, a teacher and student, a community’s inheritance, or a quarrel.</p>
-      <p class="summary"><b>Click anyone</b> to see who shaped them and whom they shaped. <b>Pick an idea</b> in the bar above to light up its thread through the centuries.</p>
-      ${legendHTML}
+      <h2>${esc(M.introTitle)}</h2>
+      <p class="summary">${esc(M.intro)}</p>
+      <p class="summary">${M.how}</p>
+      ${legendHTML()}
       <h3>Good places to start</h3>
       <ul class="links">
-        ${["moses", "daniel", "pharisees", "jesus", "paul", "nicaea"].map(id => `<li><button type="button" data-go="${id}"><span class="dots"></span><span class="who">${esc(byId[id].name)}<small>${esc(byId[id].date)}</small></span></button></li>`).join("")}
+        ${M.starts.map(id => `<li><button type="button" data-go="${id}"><span class="dots"></span><span class="who">${esc(M.byId[id].name)}<small>${esc(M.byId[id].date)}</small></span></button></li>`).join("")}
       </ul>
     </div>`;
     return;
   }
+
   const ins = [...n.in].sort((a, b) => a.s.era - b.s.era);
   const outs = [...n.out].sort((a, b) => a.t.era - b.t.era);
-  const faded = state.idea ? " faded" : "";
+  const faded = state.thread ? " faded" : "";
+  const also = alsoOf[n.id];
+  const verses = n.v ? Object.keys(VERSES).filter(k => n.v[k]) : [];
   panel.innerHTML = `<div class="grab" aria-hidden="true"></div><div class="panel-body">
     <div class="panel-head">
       <div>
-        <p class="kind">${KINDS[n.kind]} · ${esc(ERAS[n.era].name)}</p>
+        <p class="kind">${esc(M.kinds[n.kind])} · ${esc(M.eras[n.era].name)}</p>
         <h2>${esc(n.name)}</h2>
         <p class="date">${esc(n.date)}</p>
       </div>
       <button type="button" class="close" data-close aria-label="Close">×</button>
     </div>
     <p class="summary">${esc(n.text)}</p>
-    <p class="refs"><b>Key texts:</b> ${esc(n.refs)}</p>
-    <div class="mini-chips">${n.ideas.map(id => chipHTML(ideaById[id], state.idea === id)).join("")}</div>
+    <p class="refs"><b>${esc(M.refsLabel)}:</b> ${esc(n.refs)}</p>
+    ${verses.length ? `<h3>How it reads here</h3>${verses.map(k => `<p class="verse-label">${esc(VERSES[k].label)}</p>${verseBlock(n.v[k])}`).join("")}` : ""}
+    <div class="mini-chips">${n.th.map(id => chipHTML(M.threadById[id], state.thread === id)).join("")}</div>
     <div class="seg" role="group" aria-label="How far to trace">
       <button type="button" data-lineage="0" aria-pressed="${!state.lineage}">Direct links</button>
       <button type="button" data-lineage="1" aria-pressed="${state.lineage}">Whole lineage</button>
     </div>
-    <p class="seg-note">${state.lineage ? "Showing everyone upstream and downstream along the lines of influence (clashes excluded)." : "Showing only the people directly connected."}</p>
-    <h3>Received from · ${ins.length}</h3>
+    <p class="seg-note">${state.lineage ? "Showing everything upstream and downstream along the lines of influence (clashes excluded)." : "Showing only direct connections."}</p>
+    ${also ? `<button type="button" class="jump" data-go="${also}">Also on the ${mapOf[also] === "scripture" ? "scripture" : "ideas"} map: ${esc(MODELS[mapOf[also]].byId[also].name)} →</button>` : ""}
+    <h3>${esc(M.inLabel)} · ${ins.length}</h3>
     ${ins.length ? `<ul class="links${faded}">${ins.map(e => linkItem(e, e.s)).join("")}</ul>` : `<p class="empty">The map begins here.</p>`}
-    <h3>Passed on to · ${outs.length}</h3>
+    <h3>${esc(M.outLabel)} · ${outs.length}</h3>
     ${outs.length ? `<ul class="links${faded}">${outs.map(e => linkItem(e, e.t)).join("")}</ul>` : `<p class="empty">The map ends here.</p>`}
   </div>`;
 }
@@ -1002,30 +1434,35 @@ $("#panel").addEventListener("click", e => {
   const go = e.target.closest("[data-go]");
   if (go) { select(go.dataset.go, { scroll: true }); return; }
   if (e.target.closest("[data-close]")) { select(null); return; }
+  if (e.target.closest("[data-close-verse]")) { setVerse(null); return; }
   const lin = e.target.closest("[data-lineage]");
   if (lin) { state.lineage = lin.dataset.lineage === "1"; applyState(); return; }
-  const idea = e.target.closest("[data-idea]");
-  if (idea) setIdea(state.idea === idea.dataset.idea ? null : idea.dataset.idea);
+  const th = e.target.closest("[data-thread]");
+  if (th) setThread(state.thread === th.dataset.thread ? null : th.dataset.thread);
 });
 
 $("#clearAll").addEventListener("click", () => {
-  state.idea = null; state.lineage = false; renderChips(); select(null);
+  state.thread = null; state.verse = null; state.lineage = false; renderChips(); select(null);
 });
 
-document.addEventListener("keydown", e => { if (e.key === "Escape" && state.sel) select(null); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (state.sel) select(null); else if (state.verse) setVerse(null);
+});
 
-/* ---------------- search ---------------- */
+/* ---------------- search (both maps) ---------------- */
 const q = $("#q"), results = $("#results");
 function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ’']/g, ""); }
+const ALL = Object.values(MODELS).flatMap(m => m.nodes.map(n => ({ n, m })));
 q.addEventListener("input", () => {
   const term = norm(q.value.trim());
   if (!term) { results.hidden = true; return; }
-  const hits = nodes.filter(n => norm(n.name).includes(term) || norm(n.text).includes(term))
-    .sort((a, b) => (norm(b.name).includes(term) - norm(a.name).includes(term)) || a.era - b.era)
+  const hits = ALL.filter(({ n }) => norm(n.name).includes(term) || norm(n.text).includes(term))
+    .sort((a, b) => (norm(b.n.name).includes(term) - norm(a.n.name).includes(term)) || ((b.m.id === M.id) - (a.m.id === M.id)) || a.n.era - b.n.era)
     .slice(0, 8);
   results.innerHTML = hits.length
-    ? hits.map(n => `<li><button type="button" data-go="${n.id}"><span>${esc(n.name)}</span><small>${esc(n.date)}</small></button></li>`).join("")
-    : `<li style="padding:8px 10px;color:var(--muted)">No match. Try a name like Isaiah or Philo.</li>`;
+    ? hits.map(({ n, m }) => `<li><button type="button" data-go="${n.id}"><span>${esc(n.name)}</span><small>${m.id === "scripture" ? "Scripture · " : "Ideas · "}${esc(n.date)}</small></button></li>`).join("")
+    : `<li style="padding:8px 10px;color:var(--muted)">No match. Try a name like Isaiah, Jerome or King James.</li>`;
   results.hidden = false;
 });
 results.addEventListener("click", e => {
@@ -1044,12 +1481,15 @@ document.addEventListener("click", e => { if (!e.target.closest(".search")) resu
 function measureBar() {
   document.documentElement.style.setProperty("--bar-h", $("#bar").offsetHeight + "px");
 }
+const start = location.hash.slice(1);
+if (start === "scripture" || start.startsWith("verse-") || mapOf[start] === "scripture") M = MODELS.scripture;
+renderHeader();
 renderChips();
 render();
 let rt;
 addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { render(); measureBar(); }, 120); });
-const start = location.hash.slice(1);
-if (byId[start]) { select(start); setTimeout(() => scrollToNode(start), 60); }
+if (mapOf[start]) { select(start); setTimeout(() => scrollToNode(start), 60); }
+else if (start.startsWith("verse-") && VERSES[start.slice(6)]) setVerse(start.slice(6));
 </script>
 </body>
 </html>
