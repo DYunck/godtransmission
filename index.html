@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cloud of Witnesses</title>
+<meta name="description" content="An interactive network of how Israel's ideas about God passed from Abraham through the prophets and Jewish sects to Jesus, the apostles and the early church fathers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Marcellus&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1430;
+  --band: #0f1a3c;
+  --panel: #121d44;
+  --panel-edge: #26336a;
+  --node: #16224c;
+  --ink: #efe7d2;
+  --muted: #9aa3c2;
+  --faint: rgba(239, 231, 210, 0.15);
+  --gold: #d8b25a;
+  --gold-soft: rgba(216, 178, 90, 0.18);
+  --display: "Marcellus", "Trajan Pro", Georgia, serif;
+  --body: "Alegreya Sans", "Gill Sans", "Segoe UI", system-ui, sans-serif;
+  --bar-top: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--body);
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; }
+a { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+.top {
+  padding: 28px 16px 18px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+h1 {
+  margin: 0;
+  font: 400 clamp(34px, 7vw, 58px)/1.02 var(--display);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.lede {
+  margin: 10px 0 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 16.5px;
+}
+.lede b { color: var(--ink); font-weight: 500; }
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.stats span b { color: var(--ink); font-weight: 700; }
+
+/* ---------- idea bar ---------- */
+.bar {
+  position: sticky;
+  top: var(--bar-top);
+  z-index: 20;
+  background: rgba(11, 20, 48, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-block: 1px solid var(--panel-edge);
+}
+.bar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-block: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-inline: 16px;
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-inline: 16px;
+  padding-block: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-edge);
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+.chip[aria-pressed="true"] {
+  background: var(--c);
+  border-color: var(--c);
+  color: #0b1430;
+  font-weight: 700;
+}
+.chip[aria-pressed="true"] .dot { background: #0b1430; }
+.search { position: relative; flex: 1; max-width: 360px; }
+.search input {
+  width: 100%;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  color: var(--ink);
+  font: 15px var(--body);
+}
+.search input::placeholder { color: var(--muted); }
+.results {
+  position: absolute;
+  left: 0; right: 0; top: calc(100% + 4px);
+  margin: 0; padding: 4px;
+  list-style: none;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  max-height: 50vh;
+  overflow: auto;
+}
+.results button {
+  display: flex; justify-content: space-between; gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0; border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.results button:hover, .results button:focus-visible { background: var(--gold-soft); }
+.results small { color: var(--muted); }
+.clear-all {
+  flex: none;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 2px;
+}
+.idea-note {
+  padding-inline: 16px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.idea-note b { color: var(--c); font-weight: 700; }
+
+/* ---------- layout ---------- */
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.intro-mobile { padding: 14px 16px 4px; font-size: 14.5px; color: var(--muted); }
+.intro-mobile p { margin: 0 0 8px; }
+#stage { position: relative; min-width: 0; }
+#graph { display: block; width: 100%; height: auto; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+
+/* svg styling */
+.band-fill { fill: var(--band); }
+.band-name { font: 15px var(--display); fill: var(--gold); letter-spacing: 0.06em; }
+.band-date { font: 12px var(--body); fill: var(--muted); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+.star { fill: var(--ink); }
+.edge { fill: none; stroke: var(--faint); stroke-width: 1.3; transition: stroke-opacity 0.2s, opacity 0.2s; }
+.edge.clash { stroke-dasharray: 6 4; }
+.edge.disputed { stroke-dasharray: 1.5 4; stroke-linecap: round; }
+.edge.on { stroke-width: 2.4; stroke-opacity: 0.95; }
+.edge.dim { opacity: 0.12; }
+.node { cursor: pointer; transition: opacity 0.2s; }
+.node .shape { fill: var(--node); stroke: var(--gold); stroke-width: 1.6; }
+.node .ring { fill: none; stroke: var(--gold); stroke-width: 1; }
+.node text {
+  font: 500 12.5px/1 var(--body);
+  fill: var(--ink);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.node.hub .shape { fill: var(--gold-soft); stroke-width: 3; }
+.node.on .shape { stroke-width: 2.4; }
+.node.sel .shape { fill: var(--gold); stroke: var(--ink); stroke-width: 3; }
+.node.sel text { font-weight: 700; }
+.node.dim { opacity: 0.22; }
+.node:focus { outline: none; }
+.node:focus-visible .shape { stroke: var(--ink); stroke-width: 3.5; }
+.hit { fill: transparent; }
+
+/* ---------- panel ---------- */
+#panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+}
+.panel-body { padding: 18px 18px 24px; }
+.panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.kind { margin: 0; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+#panel h2 { margin: 4px 0 2px; font: 400 28px/1.1 var(--display); text-wrap: balance; }
+#panel h3 { margin: 22px 0 8px; font: 700 12px var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.date { margin: 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.summary { margin: 12px 0 0; }
+.refs { margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+.refs b { color: var(--ink); font-weight: 500; }
+.close {
+  flex: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-edge);
+  background: var(--bg);
+  font-size: 20px; line-height: 1;
+  cursor: pointer;
+}
+.mini-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.mini-chips .chip { font-size: 13px; padding: 3px 9px 3px 7px; }
+.seg { display: inline-flex; margin-top: 16px; border: 1px solid var(--panel-edge); border-radius: 10px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 7px 12px; font-size: 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--gold); color: #0b1430; font-weight: 700; }
+.seg-note { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.links button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.links button:hover, .links button:focus-visible { background: rgba(239, 231, 210, 0.06); }
+.links .dots { display: flex; gap: 3px; padding-top: 7px; }
+.links .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); display: block; }
+.links .who { font-weight: 700; }
+.links .who small { font-weight: 400; color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
+.links .note { grid-column: 2; font-size: 14px; color: var(--muted); line-height: 1.4; }
+.links.faded button:not(.match) { opacity: 0.45; }
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid var(--panel-edge);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: 2px;
+}
+.empty { color: var(--muted); font-size: 14px; margin: 0; }
+
+.legend { display: grid; gap: 8px; margin: 14px 0 0; font-size: 14px; }
+.legend div { display: flex; align-items: center; gap: 10px; }
+.legend svg { flex: none; }
+.legend .shape { fill: var(--node); stroke: var(--gold); stroke-width: 1.6; }
+.legend .ring { fill: none; stroke: var(--gold); stroke-width: 1; }
+.legend .ln { stroke: var(--ink); stroke-width: 2; fill: none; }
+
+footer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 16px 48px;
+  color: var(--muted);
+  font-size: 14px;
+}
+footer h2 { font: 400 20px var(--display); color: var(--ink); margin: 0 0 8px; }
+footer p { max-width: 70ch; margin: 0 0 10px; }
+
+/* phone: panel is a bottom sheet */
+@media (max-width: 899px) {
+  #panel {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 30;
+    max-height: 62vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 18px 18px 0 0;
+    border-bottom: 0;
+    box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.5);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  #panel:not(.open) { display: none; }
+  #panel .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--panel-edge); margin: 8px auto 0; }
+  body.sheet-open #stage { padding-bottom: 60vh; }
+  .intro-desktop { display: none; }
+}
+@media (min-width: 900px) {
+  .wrap { grid-template-columns: minmax(0, 1fr) 380px; gap: 0 20px; padding-inline: 16px; }
+  .intro-mobile { display: none; }
+  #panel {
+    position: sticky;
+    top: calc(var(--bar-top) + var(--bar-h, 96px) + 12px);
+    align-self: start;
+    margin-top: 12px;
+    max-height: calc(100vh - var(--bar-h, 96px) - 24px);
+    overflow-y: auto;
+    border-radius: 14px;
+  }
+  #panel .grab { display: none; }
+  .close.optional { display: inline-block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edge, .node { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="eyebrow">“Look toward heaven and count the stars” · Genesis 15:5</p>
+  <h1>Cloud of Witnesses</h1>
+  <p class="lede">How Israel’s ideas about God moved from person to person: from <b>Abraham</b> through the prophets, the exile and the rival <b>Jewish sects</b>, to <b>Jesus</b>, the apostles and the <b>church fathers</b> who wrote the Nicene Creed.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<nav class="bar" id="bar" aria-label="Filter by idea">
+  <div class="bar-inner">
+    <div class="bar-row">
+      <div class="search">
+        <label for="q" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Find a person, group or writing</label>
+        <input id="q" type="search" placeholder="Find someone… (Moses, Pharisees, Paul)" autocomplete="off">
+        <ul class="results" id="results" hidden></ul>
+      </div>
+      <button class="clear-all" id="clearAll" type="button" hidden>Clear</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Ideas"></div>
+    <p class="idea-note" id="ideaNote" hidden></p>
+  </div>
+</nav>
+
+<div class="wrap">
+  <main id="stage">
+    <div class="intro-mobile">
+      <p>Time runs down the page, from about 1800 BCE to 325 CE. <b style="color:var(--ink)">Tap anyone</b> to see who shaped them and whom they shaped. <b style="color:var(--ink)">Pick an idea</b> above to follow its thread.</p>
+    </div>
+    <svg id="graph" role="img" aria-label="Network of people, communities and writings linked by the ideas about God they passed on"></svg>
+  </main>
+  <aside id="panel" aria-live="polite"></aside>
+</div>
+
+<footer>
+  <h2>How the links were drawn</h2>
+  <p>Each line records a concrete connection: a text one author quotes from another, a teacher and student, a community that inherited a practice, or an argument one side had with another. Solid lines pass an idea on. Dashed lines mark a clash, where one side reacted against the other. Dotted lines are connections that scholars propose but still debate.</p>
+  <p>Dates before the monarchy (Abraham to Joshua) follow the biblical tradition, which archaeology cannot confirm. Later dates are the usual scholarly estimates. The book of Daniel, for example, is placed in the Maccabean crisis around 165 BCE, where most historians date it, rather than in the Babylonian exile where its story is set.</p>
+  <p>The map shows how ideas travelled. It does not rule on which reading of them is right.</p>
+</footer>
+
+<script>
+/* ---------------- data ---------------- */
+const IDEAS = [
+  { id: "one", label: "One God", color: "#f5d76e", desc: "From the God of Abraham to the Shema, ‘the LORD is one’, to the creeds." },
+  { id: "covenant", label: "Covenant & Torah", color: "#ef8a5a", desc: "God binds himself to a people by promise and law, later reimagined as a new covenant." },
+  { id: "name", label: "The Divine Name", color: "#8fa8ff", desc: "YHWH, ‘I AM’, read aloud as Adonai and in Greek as Kyrios, ‘Lord’." },
+  { id: "temple", label: "Presence & Priesthood", color: "#e8584f", desc: "Where God dwells: tabernacle, Temple, priesthood, and finally a heavenly high priest." },
+  { id: "messiah", label: "Messiah", color: "#5cc8ff", desc: "The anointed king from David’s line, and the other anointed figures Jews expected." },
+  { id: "sonofman", label: "Son of Man", color: "#7be0c3", desc: "A human figure beside God’s throne, from Ezekiel and Daniel to Enoch and the Gospels." },
+  { id: "wisdom", label: "Wisdom & Word", color: "#a6d96a", desc: "Wisdom beside God at creation becomes Torah, then Logos, then the Son of the creeds." },
+  { id: "spirit", label: "Spirit of God", color: "#e4ecff", desc: "God’s breath that rests on kings and prophets and is finally poured out on all flesh." },
+  { id: "resurrection", label: "Resurrection", color: "#ff8fb1", desc: "From Ezekiel’s dry bones to Daniel 12 to the empty tomb." },
+  { id: "kingdom", label: "Kingdom of God", color: "#c77dff", desc: "‘The LORD will reign’: God as king over Israel and, in the end, over all." }
+];
+
+const ERAS = [
+  { name: "Patriarchs", dates: "c. 2000–1600 BCE · traditional" },
+  { name: "Exodus & Sinai", dates: "c. 1400–1200 BCE · traditional" },
+  { name: "Judges & Kings", dates: "c. 1100–930 BCE" },
+  { name: "Prophets of Israel & Judah", dates: "c. 870–580 BCE" },
+  { name: "Exile & Return", dates: "c. 590–350 BCE" },
+  { name: "The Greek Age", dates: "c. 300–100 BCE" },
+  { name: "Sects of the Second Temple", dates: "c. 150 BCE – 70 CE" },
+  { name: "Jesus & His Circle", dates: "c. 5 BCE – 30 CE" },
+  { name: "Apostles & New Testament", dates: "c. 30–100 CE" },
+  { name: "Apostolic Fathers & Rabbis", dates: "c. 90–200 CE" },
+  { name: "The Road to Nicaea", dates: "c. 190–325 CE" }
+];
+
+const KINDS = { p: "Person", g: "Community", w: "Writing", e: "Council" };
+
+// [id, era, kind, name, date, summary, key texts]
+const NODES = [
+  ["abraham", 0, "p", "Abraham", "c. 1800 BCE (traditional)", "Leaves his homeland at the call of one God who binds himself to Abraham by promise (Gen 12; 15). Later Jewish tradition (Jubilees, Josephus) remembers him as the first to reject idols.", "Gen 12; 15; 17; 22"],
+  ["melchizedek", 0, "p", "Melchizedek", "Genesis 14", "Priest-king of Salem who blesses Abraham by El Elyon, ‘God Most High, maker of heaven and earth’. Psalm 110 makes him the model of an eternal priesthood, and at Qumran (11QMelch) he becomes a heavenly redeemer.", "Gen 14:18–20; Ps 110:4"],
+  ["isaac", 0, "p", "Isaac", "Genesis 21–35", "Heir of the promise. His near-sacrifice on Mount Moriah (the Akedah, Gen 22) becomes a lasting image of faith and substitution for Jews and Christians alike.", "Gen 22; 26"],
+  ["jacob", 0, "p", "Jacob / Israel", "Genesis 25–50", "Renamed Israel after wrestling with God (Gen 32). His twelve sons name the tribes, and God is remembered as ‘the God of Abraham, Isaac and Jacob’.", "Gen 28; 32; Ex 3:6"],
+
+  ["jethro", 1, "p", "Jethro", "Exodus 3; 18", "Priest of Midian and Moses’ father-in-law. He offers sacrifice to YHWH and organizes Israel’s judges. The ‘Kenite hypothesis’ proposes that worship of YHWH first came from Midian.", "Ex 3:1; 18"],
+  ["moses", 1, "p", "Moses", "c. 13th c. BCE (traditional)", "Receives the divine name at the burning bush, ‘I AM WHO I AM’ (Ex 3:14), and the covenant at Sinai. Deuteronomy gives Israel its central creed, the Shema: ‘Hear, O Israel: the LORD our God, the LORD is one’ (Deut 6:4).", "Ex 3; 20; Deut 6:4–9; 18:15"],
+  ["aaron", 1, "p", "Aaron", "Exodus – Numbers", "First high priest. The tabernacle, the Day of Atonement and the priestly blessing (Num 6:24–26) present God as holy and yet present among the people.", "Ex 28–29; Lev 16; Num 6:24–26"],
+  ["miriam", 1, "p", "Miriam", "Exodus 15", "Prophet who leads Israel in the Song of the Sea, one of the oldest poems in the Bible. It ends ‘The LORD will reign for ever and ever’ (Ex 15:18), the first statement of God as king.", "Ex 15:1–21"],
+  ["joshua", 1, "p", "Joshua", "Joshua", "Moses’ successor, ‘full of the spirit of wisdom’ (Deut 34:9). At Shechem he makes Israel choose: ‘As for me and my household, we will serve the LORD’ (Josh 24:15).", "Deut 34:9; Josh 24"],
+
+  ["hannah", 2, "p", "Hannah", "1 Samuel 1–2", "Her prayer at Shiloh is the first place in the Bible to speak of the LORD’s ‘anointed’ king (1 Sam 2:10). Mary’s Magnificat closely echoes it.", "1 Sam 1–2"],
+  ["samuel", 2, "p", "Samuel", "c. 1050 BCE", "Last of the judges and a kingmaker. He warns that asking for a king means rejecting God as king (1 Sam 8:7), then anoints Saul and David.", "1 Sam 3; 8; 16"],
+  ["nathan", 2, "p", "Nathan", "c. 1000 BCE", "Court prophet who brings God’s promise to David: ‘Your throne shall be established forever’ (2 Sam 7:16). Every later hope for a Son of David grows from this oracle.", "2 Sam 7; 12"],
+  ["david", 2, "p", "David", "c. 1000 BCE", "Shepherd-king and the anointed one (Hebrew mashiach). Psalms linked to his name, especially Psalm 2 (‘You are my son’) and Psalm 110 (‘Sit at my right hand’), become the Old Testament texts the New Testament quotes most.", "1 Sam 16; 2 Sam 7; Ps 2; Ps 110"],
+  ["zadok", 2, "p", "Zadok", "c. 970 BCE", "Priest under David and Solomon. Ezekiel names the ‘sons of Zadok’ as the only legitimate priests. The Sadducees probably take their name from him, and the Qumran community called its priests ‘sons of Zadok’.", "2 Sam 8:17; 1 Kgs 1:39; Ezek 44:15"],
+  ["solomon", 2, "p", "Solomon", "c. 970–930 BCE", "Builds the Jerusalem Temple, yet prays that ‘heaven and the highest heaven cannot contain you’ (1 Kgs 8:27). Remembered as the patron of Israel’s wisdom writing.", "1 Kgs 3; 8; Prov 1:1"],
+
+  ["elijah", 3, "p", "Elijah", "c. 860 BCE", "Confronts Baal worship on Mount Carmel: ‘The LORD, he is God!’ (1 Kgs 18:39). Taken up in a whirlwind, he is expected to return before the Day of the LORD (Mal 4:5).", "1 Kgs 18–19; 2 Kgs 2; Mal 4:5"],
+  ["amos", 3, "p", "Amos", "c. 760 BCE", "Shepherd from Tekoa who ties worship to justice: ‘Let justice roll down like waters’ (Amos 5:24). The covenant God sides with the poor.", "Amos 3:2; 5:21–24"],
+  ["hosea", 3, "p", "Hosea", "c. 750 BCE", "Pictures the covenant as a marriage betrayed and restored. ‘After two days he will revive us; on the third day he will raise us up’ (Hos 6:2).", "Hos 1–3; 6:2; 11:1"],
+  ["isaiah", 3, "p", "Isaiah", "c. 740–700 BCE", "Sees the LORD enthroned in the Temple, ‘Holy, holy, holy’ (Isa 6). Foretells a child called Immanuel (7:14) and a shoot from the stump of Jesse on whom the Spirit rests (11:1–2).", "Isa 6; 7:14; 9:6–7; 11"],
+  ["micah", 3, "p", "Micah", "c. 730 BCE", "‘Do justice, love kindness, and walk humbly with your God’ (Mic 6:8). Promises a ruler from little Bethlehem (5:2).", "Mic 5:2; 6:8"],
+  ["josiah", 3, "p", "King Josiah", "c. 622 BCE", "His reform follows the discovery of ‘the book of the law’, usually identified with Deuteronomy. He tears down shrines to other gods and centers worship of the one God in the one Temple.", "2 Kgs 22–23"],
+  ["jeremiah", 3, "p", "Jeremiah", "c. 627–580 BCE", "Prophet of Jerusalem’s fall. Promises a new covenant written on the heart (Jer 31:31–34), the passage behind Jesus’ cup-saying and the Letter to the Hebrews.", "Jer 7; 31:31–34"],
+
+  ["ezekiel", 4, "p", "Ezekiel", "c. 593–571 BCE", "Priest in Babylonian exile. Sees God’s throne-chariot with ‘the likeness of a human form’ upon it (Ezek 1:26), is himself called ‘son of man’, and watches dry bones raised by the Spirit (Ezek 37).", "Ezek 1; 36–37; 40–48"],
+  ["isaiah2", 4, "p", "Isaiah of the Exile", "c. 540–500 BCE", "The voice behind Isaiah 40–66. States monotheism outright, ‘besides me there is no god’ (45:5), calls Cyrus the LORD’s anointed, and portrays a Suffering Servant (52:13–53:12) and one anointed by the Spirit to bring good news (61:1).", "Isa 40:3; 45; 52:7; 53; 61:1"],
+  ["ezra", 4, "p", "Ezra", "c. 458–400 BCE", "Scribe who reads the Torah aloud to the returned exiles while Levites explain its meaning (Neh 8). Judaism starts to become a religion of the book.", "Ezra 7; Neh 8"],
+  ["joel", 4, "p", "Joel", "c. 400 BCE (debated)", "‘I will pour out my spirit on all flesh; your sons and your daughters shall prophesy’ (Joel 2:28). Peter quotes it at Pentecost.", "Joel 2:28–32"],
+  ["sages", 4, "w", "Proverbs & Job", "c. 500–300 BCE", "Israel’s wisdom teachers. In Proverbs 8, Lady Wisdom speaks: ‘The LORD created me at the beginning of his work’, and she was beside God as he made the world.", "Prov 8:22–31; Job 28"],
+
+  ["lxx", 5, "w", "The Septuagint", "c. 250–100 BCE", "Jewish scholars in Alexandria translate the scriptures into Greek. The divine name YHWH is rendered Kyrios, ‘Lord’, which lets the first Christians read ‘Lord’ texts as speaking of Jesus.", "Letter of Aristeas"],
+  ["bensira", 5, "p", "Ben Sira", "c. 180 BCE", "Jerusalem scribe. Wisdom ‘came forth from the mouth of the Most High’ and pitched her tent in Israel as the Torah (Sir 24).", "Sirach 1; 24"],
+  ["enoch", 5, "w", "1 Enoch", "c. 300 BCE – 1st c. CE", "Apocalypses written in Enoch’s name. Its Parables describe a pre-existent ‘Son of Man’, the Chosen One, who sits on God’s throne as judge (1 En 46–48; 62). Jude 14–15 quotes the book.", "1 En 14; 46–48; 62"],
+  ["daniel", 5, "w", "Book of Daniel", "c. 165 BCE", "Written during the Maccabean crisis. ‘One like a son of man’ comes with the clouds and receives an everlasting kingdom (Dan 7:13–14), and ‘many who sleep in the dust shall awake’ (12:2), the Bible’s clearest resurrection text.", "Dan 2:44; 7:13–14; 12:2"],
+  ["maccabees", 5, "g", "Maccabees", "167–63 BCE", "Revolt against Antiochus IV, who banned Torah practice and profaned the Temple. The Temple is rededicated (Hanukkah), and the martyr stories of 2 Maccabees 7 hope for bodily resurrection. Their heirs, the Hasmoneans, rule as priest-kings.", "1 Macc 1–4; 2 Macc 7"],
+
+  ["pharisees", 6, "g", "Pharisees", "c. 150 BCE – 70 CE", "Popular lay movement of Torah interpreters. They kept an oral tradition alongside scripture and believed in bodily resurrection, angels and a coming judgment (Acts 23:8; Josephus).", "Acts 23:6–8; Josephus, Ant. 18"],
+  ["sadducees", 6, "g", "Sadducees", "c. 150 BCE – 70 CE", "The priestly aristocracy that ran the Temple. They accepted only the written Torah and rejected resurrection and angels.", "Mark 12:18; Acts 23:8"],
+  ["essenes", 6, "g", "Essenes & Qumran", "c. 150 BCE – 68 CE", "Priestly separatists behind the Dead Sea Scrolls. They expected two messiahs, ‘of Aaron and of Israel’ (1QS 9:11), taught a war between light and darkness and a ‘spirit of truth’, and prepared ‘the way of the LORD’ in the wilderness (Isa 40:3).", "1QS; 11QMelch; Josephus, War 2"],
+  ["samaritans", 6, "g", "Samaritans", "c. 400 BCE onward", "Northern Israelites who kept the five books of Moses and worshipped on Mount Gerizim. They awaited the Taheb, a prophet like Moses (Deut 18:15).", "John 4; Deut 18:15"],
+  ["zealots", 6, "g", "Zealots", "6–73 CE", "Judas the Galilean (6 CE) taught that Jews should have ‘no master but God’ (Josephus). The movement fed the revolt of 66–70 CE, which ended with the Temple’s destruction.", "Josephus, Ant. 18.1"],
+  ["hillel", 6, "p", "Hillel", "c. 30 BCE – 10 CE", "Leading Pharisee sage: ‘What is hateful to you, do not do to your neighbor. That is the whole Torah; the rest is commentary’ (b. Shabbat 31a).", "b. Shabbat 31a; m. Avot 1"],
+  ["shammai", 6, "p", "Shammai", "c. 50 BCE – 30 CE", "Hillel’s stricter rival. Their two schools argued over divorce, the Sabbath and purity, the same questions put to Jesus (Matt 19:3).", "m. Gittin 9:10"],
+  ["philo", 6, "p", "Philo of Alexandria", "c. 20 BCE – 50 CE", "Jewish philosopher who calls the Logos God’s ‘firstborn’, a ‘second God’ and high priest, through whom the world was made.", "On the Confusion of Tongues 146"],
+  ["wisdomsol", 6, "w", "Wisdom of Solomon", "c. 50 BCE", "Greek Jewish book from Alexandria. Wisdom is ‘a breath of the power of God… a reflection of eternal light’ (Wis 7:25–26), and the righteous have a hope ‘full of immortality’ (3:4).", "Wis 3; 7:22–8:1"],
+  ["gamaliel", 6, "p", "Gamaliel", "fl. 20–50 CE", "Pharisee leader, traditionally Hillel’s grandson. Advises the council to leave the apostles alone (Acts 5:34–39). Paul says he was trained ‘at the feet of Gamaliel’ (Acts 22:3).", "Acts 5:34; 22:3"],
+
+  ["johnbaptist", 7, "p", "John the Baptist", "d. c. 29 CE", "Prophet in the Jordan wilderness who calls Israel to repent before the coming judgment. Dressed like Elijah (2 Kgs 1:8), he says the one after him ‘will baptize you with the Holy Spirit’ (Mark 1:8).", "Mark 1:2–11; Luke 3"],
+  ["mary", 7, "p", "Mary", "1st c. BCE – 1st c. CE", "Mother of Jesus. Her Magnificat, ‘He has brought down the powerful… and lifted up the lowly’ (Luke 1:52), reworks Hannah’s song.", "Luke 1:46–55; John 2; Acts 1:14"],
+  ["jesus", 7, "p", "Jesus of Nazareth", "c. 4 BCE – 30 CE", "Galilean Jewish teacher who announces that the Kingdom of God has come near. He calls the Shema the first commandment (Mark 12:29), speaks of himself as the Son of Man, prays to God as Abba, and is crucified around 30 CE. His followers proclaim that God raised him from the dead.", "Mark 1:15; 12:28–34; 14:62"],
+  ["magdalene", 7, "p", "Mary Magdalene", "1st c. CE", "Follower from Galilee who stays at the cross. The gospels name her as the first witness of the empty tomb and the risen Jesus (John 20:11–18).", "Mark 15:40; John 20"],
+
+  ["peter", 8, "p", "Peter", "d. c. 64 CE", "Leader of the Twelve. Confesses ‘You are the Messiah’ (Mark 8:29). At Pentecost he reads Joel and Psalm 110 as fulfilled in Jesus (Acts 2).", "Mark 8:29; Acts 2; 10"],
+  ["james", 8, "p", "James the Just", "d. 62 CE", "Brother of Jesus and head of the Jerusalem church. Observant of Torah: ‘faith without works is dead’ (Jas 2:26). Presides at the Jerusalem Council (Acts 15).", "Acts 15; Gal 2; James"],
+  ["john", 8, "w", "John’s Gospel & Revelation", "c. 90–100 CE", "The Gospel of John opens, ‘In the beginning was the Word (Logos), and the Word was with God, and the Word was God’. Jesus’ ‘I am’ sayings echo Exodus 3:14. Revelation, traditionally linked to John, sees ‘one like a son of man’ among the lampstands.", "John 1:1–18; 8:58; Rev 1:13"],
+  ["paul", 8, "p", "Paul", "c. 5 – 64 CE", "Pharisee who persecuted the church and then became its apostle to the Gentiles. He rewrites the Shema around Jesus, ‘one God, the Father… and one Lord, Jesus Christ’ (1 Cor 8:6), and hands on the earliest resurrection creed (1 Cor 15:3–8).", "1 Cor 8:6; 15; Phil 2:6–11"],
+  ["stephen", 8, "p", "Stephen", "d. c. 34 CE", "Greek-speaking Jewish follower of Jesus. Argues that ‘the Most High does not dwell in houses made with hands’ (Acts 7:48), sees the Son of Man at God’s right hand, and is stoned while young Saul watches.", "Acts 6–7"],
+  ["matthew", 8, "w", "Gospel of Matthew", "c. 80–90 CE", "Written for Jewish believers. Presents Jesus as Son of David and a new Moses, cites Isaiah 7:14 and Micah 5:2, and says ‘kingdom of heaven’ out of Jewish reverence for God’s name.", "Matt 1–2; 5–7; 16:16–19"],
+  ["luke", 8, "w", "Luke & Acts", "c. 80–90 CE", "A two-volume history from Jesus’ birth to Paul in Rome. It alone keeps Mary’s Magnificat, Jesus reading Isaiah 61 in Nazareth, and the Spirit’s arrival at Pentecost.", "Luke 1; 4:16–21; Acts 2"],
+  ["hebrews", 8, "w", "Letter to the Hebrews", "c. 60–90 CE", "Jesus is ‘the radiance of God’s glory’ (Heb 1:3) and a high priest ‘after the order of Melchizedek’ (Heb 7) who opens Jeremiah’s new covenant (Heb 8).", "Heb 1:3; 7; 8:8–12"],
+
+  ["clementrome", 9, "p", "Clement of Rome", "c. 96 CE", "His letter to Corinth is among the earliest Christian writings outside the New Testament. It is steeped in the Jewish scriptures, borrows from Hebrews, and points to the resurrection as God’s pledge (1 Clem 24).", "1 Clement 24; 36; 47"],
+  ["didache", 9, "w", "The Didache", "c. 70–120 CE", "Early church manual that opens with the Jewish ‘Two Ways’ teaching, prays the Lord’s Prayer three times a day, and uses table prayers modeled on Jewish blessings.", "Didache 1–10"],
+  ["ignatius", 9, "p", "Ignatius of Antioch", "d. c. 110 CE", "Bishop martyred in Rome. ‘There is one physician… God in man’ (Eph 7). He stresses the one God revealed through Jesus Christ his Word, and warns against ‘Judaizing’ (Magn 10).", "Ephesians 7; Magnesians 8–10"],
+  ["polycarp", 9, "p", "Polycarp of Smyrna", "c. 69–155 CE", "Bishop who, according to Irenaeus, had known John. Burned at 86, he refuses to curse Christ: ‘How can I blaspheme my King who saved me?’", "Martyrdom of Polycarp 9"],
+  ["justin", 9, "p", "Justin Martyr", "c. 100–165 CE", "Philosopher-convert. In his Dialogue with Trypho, a Jew, he argues that the Logos is ‘another God’ under the Father, the one who appeared to Abraham and to Moses.", "Dialogue with Trypho 56; 61"],
+  ["marcion", 9, "p", "Marcion", "c. 85–160 CE", "Taught that the God of Israel was a lesser, harsher god than the Father of Jesus. Kept an edited Luke and ten letters of Paul and discarded the Jewish scriptures. Expelled by the church in Rome, 144 CE.", "Known from Tertullian, Irenaeus"],
+  ["irenaeus", 9, "p", "Irenaeus of Lyon", "c. 130–202 CE", "Heard Polycarp as a boy. Against Marcion and the Gnostics he insists that the Creator of Israel is the Father of Jesus, with the Son and the Spirit as God’s ‘two hands’ (Against Heresies 4.20.1).", "Against Heresies 3–5"],
+  ["rabbis", 9, "g", "Rabbinic Sages", "70–200 CE", "After 70 CE Johanan ben Zakkai and the sages at Yavneh rebuild Judaism around Torah study, prayer and the Shema instead of sacrifice. They reject belief in ‘two powers in heaven’. Judah ha-Nasi compiles the Mishnah around 200.", "Mishnah; m. Berakhot 1–2"],
+
+  ["tertullian", 10, "p", "Tertullian", "c. 155–220 CE", "Lawyer of Carthage and the first to write ‘Trinitas’ in Latin: one substance in three persons (Against Praxeas). Wrote five books against Marcion.", "Against Praxeas; Against Marcion"],
+  ["clementalex", 10, "p", "Clement of Alexandria", "c. 150–215 CE", "Head of the Christian school in Alexandria. Reads Philo closely and calls Christ the Logos, the teacher of all humankind.", "Exhortation to the Greeks; Stromata"],
+  ["origen", 10, "p", "Origen", "c. 185–253 CE", "Learned Hebrew and assembled the Hexapla, a six-column Old Testament. Teaches that the Son is eternally begotten: ‘there was no time when he was not’.", "On First Principles 1.2; Hexapla"],
+  ["arius", 10, "p", "Arius", "c. 256–336 CE", "Priest of Alexandria who read Proverbs 8:22, ‘The LORD created me’, to mean the Son was created: ‘there was when he was not’.", "Thalia (fragments)"],
+  ["athanasius", 10, "p", "Athanasius", "c. 296–373 CE", "Deacon at Nicaea and later bishop of Alexandria. ‘God became human so that we might become divine’ (On the Incarnation 54).", "On the Incarnation; Against the Arians"],
+  ["nicaea", 10, "e", "Council of Nicaea", "325 CE", "Bishops called by Constantine confess ‘one God, the Father Almighty’ and ‘one Lord Jesus Christ… of one substance (homoousios) with the Father’. The creed still opens with the words of the Shema.", "Nicene Creed (325)"]
+];
+
+// [from, to, ideas, note, flag]  flag: "c" = clash, "d" = debated
+const EDGES = [
+  ["melchizedek", "abraham", "one temple", "Blesses Abraham by El Elyon, God Most High, and receives a tenth (Gen 14:19–20)."],
+  ["abraham", "isaac", "covenant", "The covenant passes to the son of promise (Gen 17:19)."],
+  ["isaac", "jacob", "covenant", "Isaac blesses Jacob, and God renews the promise at Bethel (Gen 28:13–15)."],
+  ["jacob", "moses", "covenant name", "The God of the patriarchs, once known as El Shaddai, reveals the name YHWH to Moses (Ex 3:6; 6:3)."],
+  ["jethro", "moses", "name temple", "Offers sacrifice to YHWH and shapes Israel’s courts (Ex 18). Basis of the Kenite hypothesis.", "d"],
+  ["moses", "aaron", "temple", "Tabernacle and priesthood given at Sinai (Ex 25–29)."],
+  ["moses", "miriam", "kingdom", "Together they sing the Song of the Sea: ‘The LORD will reign’ (Ex 15)."],
+  ["moses", "joshua", "covenant spirit", "Moses lays hands on Joshua, who is filled with the spirit of wisdom (Deut 34:9); the covenant is renewed at Shechem."],
+  ["aaron", "zadok", "temple", "Zadok’s line is traced back to Aaron (1 Chr 6:3–8)."],
+  ["miriam", "hannah", "kingdom", "Hannah’s victory song follows the pattern of Miriam’s: God overturns the mighty.", "d"],
+  ["moses", "samuel", "kingdom covenant", "Samuel treats the demand for a king as rejecting God, Israel’s true king (1 Sam 8:7; 12)."],
+  ["hannah", "samuel", "messiah", "Dedicates her son at Shiloh. Her song is the first to name the LORD’s ‘anointed’ (1 Sam 2:10)."],
+  ["samuel", "david", "messiah spirit", "Anoints David, and ‘the spirit of the LORD came mightily upon David’ (1 Sam 16:13)."],
+  ["nathan", "david", "messiah kingdom", "God promises David an everlasting throne and calls his heir ‘my son’ (2 Sam 7:14)."],
+  ["david", "solomon", "messiah temple", "Solomon inherits the throne and builds the Temple David planned."],
+  ["zadok", "solomon", "temple", "Zadok anoints Solomon and serves as high priest (1 Kgs 1:39)."],
+  ["solomon", "sages", "wisdom", "Proverbs is collected under Solomon’s name (Prov 1:1; 25:1)."],
+  ["solomon", "isaiah", "temple", "Isaiah’s call vision takes place in Solomon’s Temple: ‘Holy, holy, holy’ (Isa 6)."],
+  ["moses", "elijah", "one covenant", "Elijah flees to Horeb, Moses’ mountain, and meets God in the ‘still small voice’ (1 Kgs 19)."],
+  ["elijah", "hosea", "one", "Both fight Baal worship: YHWH alone is Israel’s God (Hos 2:16–17)."],
+  ["moses", "amos", "covenant", "Amos judges Israel by the covenant: ‘You only have I known of all the families of the earth’ (Amos 3:2)."],
+  ["amos", "micah", "covenant", "Justice for the poor as the heart of true worship (Mic 6:8)."],
+  ["hosea", "jeremiah", "covenant", "Jeremiah takes up Hosea’s marriage picture and moves on to a new covenant (Jer 3; 31)."],
+  ["david", "isaiah", "messiah spirit", "A shoot from Jesse’s stump on whom the Spirit rests (Isa 11:1–2)."],
+  ["moses", "josiah", "one covenant", "The rediscovered law book (Deuteronomy) and its Shema drive the reform (2 Kgs 23:25)."],
+  ["josiah", "jeremiah", "covenant", "Jeremiah begins prophesying under Josiah and praises his justice (Jer 22:15–16)."],
+  ["isaiah", "isaiah2", "one temple", "‘The Holy One of Israel’ runs through both halves of the book."],
+  ["jeremiah", "ezekiel", "covenant spirit", "The new covenant becomes a new heart and a new spirit (Ezek 36:26)."],
+  ["zadok", "ezekiel", "temple", "Ezekiel’s restored Temple is served only by the sons of Zadok (Ezek 44:15)."],
+  ["ezekiel", "joel", "spirit", "Ezekiel’s ‘I will put my spirit within you’ (36:27) widens in Joel to ‘all flesh’."],
+  ["josiah", "ezra", "one covenant", "The Deuteronomic law becomes the constitution of the returned community."],
+  ["isaiah2", "ezra", "one", "After the exile Israel does not return to idols; worship of one God is settled."],
+  ["ezekiel", "daniel", "sonofman resurrection", "The throne vision (Ezek 1) and the dry bones (Ezek 37) feed Daniel’s throne scene and resurrection hope."],
+  ["ezekiel", "enoch", "sonofman", "Enoch’s ascent to God’s fiery throne borrows Ezekiel’s chariot imagery (1 En 14)."],
+  ["sages", "bensira", "wisdom", "Ben Sira continues Proverbs: Wisdom existed before creation (Sir 1:4; 24:9)."],
+  ["moses", "lxx", "name", "The Torah is translated first, and the divine name is read as Kyrios, ‘Lord’."],
+  ["bensira", "wisdomsol", "wisdom", "Wisdom as God’s outflowing presence grows more personal."],
+  ["bensira", "pharisees", "wisdom covenant", "Wisdom identified with Torah: the scribal ideal the Pharisees inherit (Sir 24:23; 38:24–39:11)."],
+  ["ezra", "pharisees", "covenant", "Reading and interpreting Torah in public becomes the Pharisaic project (Neh 8:8)."],
+  ["ezra", "sadducees", "temple", "The rebuilt Temple and its priestly leaders become the center of Judean life."],
+  ["ezra", "samaritans", "temple", "The returnees turn away northern help (Ezra 4:1–3); Samaritans later build their own temple on Gerizim.", "c"],
+  ["moses", "samaritans", "covenant", "Samaritans keep only the five books of Moses as scripture."],
+  ["daniel", "enoch", "sonofman", "Enoch’s Parables turn Daniel’s ‘son of man’ into a named heavenly judge (1 En 46)."],
+  ["daniel", "maccabees", "kingdom resurrection", "Daniel is written to encourage the faithful in the same persecution the Maccabees resist."],
+  ["maccabees", "pharisees", "resurrection", "The martyrs’ faith (2 Macc 7) makes resurrection a mainstream hope."],
+  ["maccabees", "sadducees", "temple", "Hasmonean priest-kings and the Temple elite form the core of the Sadducees."],
+  ["maccabees", "essenes", "temple", "Qumran’s ‘Teacher of Righteousness’ opposes a ‘Wicked Priest’, probably a Hasmonean high priest.", "c"],
+  ["maccabees", "zealots", "kingdom", "‘Zeal for the law’ (1 Macc 2:26) becomes the model for armed revolt."],
+  ["zadok", "sadducees", "temple", "Their name probably comes from Zadok, and they held the high priesthood."],
+  ["zadok", "essenes", "temple", "Qumran’s leaders call themselves ‘sons of Zadok’ (1QS 5:2)."],
+  ["enoch", "essenes", "sonofman", "Many copies of 1 Enoch were found among the Dead Sea Scrolls."],
+  ["isaiah2", "essenes", "kingdom", "‘In the wilderness prepare the way of the LORD’ (Isa 40:3) is the community’s charter (1QS 8:14)."],
+  ["lxx", "philo", "name wisdom", "Philo reads scripture in Greek and treats the translation as inspired."],
+  ["wisdomsol", "philo", "wisdom", "Alexandrian Jewish wisdom merges with the Greek idea of the Logos."],
+  ["pharisees", "hillel", "covenant", "Hillel leads one of the two great Pharisaic schools."],
+  ["pharisees", "shammai", "covenant", "Shammai leads the stricter school."],
+  ["hillel", "gamaliel", "covenant", "Gamaliel the Elder heads the House of Hillel (traditionally his grandson)."],
+  ["shammai", "zealots", "kingdom", "Some scholars link the Shammaites with anti-Roman zeal (b. Shabbat 17a).", "d"],
+  ["elijah", "johnbaptist", "messiah kingdom", "John wears Elijah’s clothes, and Jesus calls him the Elijah who was to come (Mal 4:5; Matt 11:14)."],
+  ["isaiah2", "johnbaptist", "kingdom", "‘A voice crying in the wilderness’ (Isa 40:3; Mark 1:3)."],
+  ["essenes", "johnbaptist", "spirit temple", "Wilderness, ritual washing and Isaiah 40:3 in common; direct contact is unproven.", "d"],
+  ["hannah", "mary", "kingdom messiah", "The Magnificat reworks Hannah’s song (Luke 1:46–55; 1 Sam 2:1–10)."],
+  ["johnbaptist", "jesus", "kingdom spirit", "Baptizes Jesus, and the Spirit descends like a dove (Mark 1:9–11)."],
+  ["mary", "jesus", "kingdom covenant", "Raises Jesus in a Torah-observant Galilean home (Luke 2:21–41)."],
+  ["david", "jesus", "messiah", "Jesus quotes Psalm 110, ‘The LORD said to my Lord’, about the Messiah (Mark 12:35–37)."],
+  ["daniel", "jesus", "sonofman kingdom", "‘You will see the Son of Man… coming with the clouds of heaven’ (Mark 14:62; Dan 7:13)."],
+  ["enoch", "jesus", "sonofman", "The Son of Man seated on his glorious throne as judge (Matt 25:31; 1 En 62).", "d"],
+  ["isaiah2", "jesus", "spirit messiah kingdom", "In Nazareth Jesus reads ‘The Spirit of the Lord is upon me’ (Isa 61:1; Luke 4:18). The Servant of Isaiah 53 shapes how his death is understood."],
+  ["jeremiah", "jesus", "covenant", "‘This cup is the new covenant in my blood’ (Luke 22:20; Jer 31:31)."],
+  ["pharisees", "jesus", "one resurrection", "A scribe and Jesus agree the Shema is the first commandment (Mark 12:28–34). Jesus shares the Pharisees’ resurrection hope."],
+  ["hillel", "jesus", "covenant", "Hillel’s Golden Rule in the negative parallels Jesus’ positive form (Matt 7:12).", "d"],
+  ["shammai", "jesus", "covenant", "Asked the Hillel–Shammai divorce question, Jesus answers closer to Shammai (Matt 19:3–9)."],
+  ["sadducees", "jesus", "resurrection temple", "They test him on resurrection (Mark 12:18–27), and he overturns tables in their Temple.", "c"],
+  ["samaritans", "jesus", "temple messiah", "At Jacob’s well: ‘neither on this mountain nor in Jerusalem’ (John 4:21). The woman expects the Messiah."],
+  ["zealots", "jesus", "kingdom", "Simon the Zealot follows him, but Jesus refuses the sword (Luke 6:15; Matt 26:52).", "c"],
+  ["jesus", "magdalene", "resurrection", "‘I have seen the Lord’ (John 20:18)."],
+  ["jesus", "peter", "messiah kingdom", "‘You are the Messiah’ (Mark 8:29); given the keys of the kingdom (Matt 16:19)."],
+  ["johnbaptist", "peter", "kingdom", "Andrew, a disciple of John, brings his brother Simon to Jesus (John 1:35–42)."],
+  ["magdalene", "peter", "resurrection", "She brings the news to Peter and the others (John 20:2, 18; Luke 24:10)."],
+  ["jesus", "james", "kingdom covenant", "The risen Jesus appears to James (1 Cor 15:7), who goes on to lead the Jerusalem church."],
+  ["jesus", "john", "sonofman wisdom", "John’s Gospel presents Jesus as the Word made flesh and the Son of Man come down from heaven (John 1:14; 3:13)."],
+  ["jesus", "paul", "resurrection spirit", "Appears to Paul ‘last of all’ (1 Cor 15:8; Gal 1:12)."],
+  ["jesus", "stephen", "sonofman", "Stephen sees ‘the Son of Man standing at the right hand of God’ (Acts 7:56)."],
+  ["jesus", "matthew", "kingdom messiah", "Gathers Jesus’ teaching into five discourses, like the five books of Moses."],
+  ["peter", "luke", "spirit", "Peter’s Pentecost sermon is the centerpiece of Acts 2."],
+  ["joel", "peter", "spirit", "‘I will pour out my spirit on all flesh’ fulfilled at Pentecost (Acts 2:16–18)."],
+  ["david", "peter", "messiah resurrection", "Peter reads Psalms 16 and 110 as pointing to Jesus’ resurrection and exaltation (Acts 2:25–36)."],
+  ["peter", "stephen", "spirit", "The apostles lay hands on the Seven, Stephen among them (Acts 6:6)."],
+  ["stephen", "paul", "temple", "Saul guards the coats at Stephen’s stoning (Acts 7:58). Later Paul too calls believers God’s temple.", "c"],
+  ["pharisees", "paul", "resurrection covenant", "‘As to the law, a Pharisee’ (Phil 3:5). ‘I am on trial concerning the resurrection’ (Acts 23:6)."],
+  ["gamaliel", "paul", "covenant", "Trained at the feet of Gamaliel (Acts 22:3)."],
+  ["lxx", "paul", "name", "Applies Kyrios texts to Jesus: ‘Everyone who calls on the name of the Lord will be saved’ (Rom 10:13; Joel 2:32)."],
+  ["isaiah2", "paul", "one name", "Isaiah’s ‘to me every knee shall bow’ (45:23) becomes ‘at the name of Jesus every knee should bow’ (Phil 2:10)."],
+  ["hosea", "paul", "resurrection", "‘Raised on the third day according to the scriptures’ (1 Cor 15:4) is often traced to Hosea 6:2.", "d"],
+  ["jeremiah", "paul", "covenant", "Ministers of a new covenant, written ‘on tablets of human hearts’ (2 Cor 3:3–6)."],
+  ["wisdomsol", "paul", "wisdom", "Christ as ‘the wisdom of God’ (1 Cor 1:24) and ‘image of the invisible God’ (Col 1:15) echoes Wisdom 7."],
+  ["james", "paul", "covenant", "Friction over Gentiles and Torah at Antioch (Gal 2:12), worked out at the Jerusalem Council (Acts 15).", "c"],
+  ["paul", "luke", "spirit", "Luke travels with Paul (the ‘we’ passages) and tells his story in Acts 13–28."],
+  ["mary", "luke", "kingdom", "Only Luke preserves the Magnificat."],
+  ["isaiah", "matthew", "messiah", "‘The virgin shall conceive… Immanuel’ (Isa 7:14 in Greek; Matt 1:23)."],
+  ["micah", "matthew", "messiah", "The ruler from Bethlehem (Mic 5:2; Matt 2:6)."],
+  ["moses", "john", "name", "‘Before Abraham was, I am’ (John 8:58), echoing the name given at the bush (Ex 3:14)."],
+  ["philo", "john", "wisdom", "Both speak of a Logos through whom all things were made. How directly Philo shaped John is debated.", "d"],
+  ["sages", "john", "wisdom", "Like Wisdom in Proverbs 8, the Word was with God in the beginning and ‘pitched his tent’ among us (John 1:14; Sir 24:8)."],
+  ["essenes", "john", "spirit", "‘Spirit of truth’ and ‘sons of light’ appear both at Qumran (1QS 3–4) and in John (14:17; 12:36).", "d"],
+  ["daniel", "john", "sonofman", "Revelation 1:13 sees ‘one like a son of man’ with hair white as wool, merging Daniel’s two figures."],
+  ["ezekiel", "john", "temple", "Revelation’s throne, living creatures and measured city draw on Ezekiel 1 and 40–48."],
+  ["melchizedek", "hebrews", "temple", "A priest ‘forever, after the order of Melchizedek’ (Ps 110:4; Heb 7)."],
+  ["jeremiah", "hebrews", "covenant", "Quotes Jeremiah 31:31–34 in full, the longest Old Testament quotation in the New (Heb 8:8–12)."],
+  ["wisdomsol", "hebrews", "wisdom", "‘Radiance of God’s glory’ (Heb 1:3) uses the rare word of Wisdom 7:26, apaugasma."],
+  ["philo", "hebrews", "wisdom temple", "The earthly tabernacle as a copy of the heavenly one, and the Logos as high priest.", "d"],
+  ["peter", "clementrome", "resurrection", "1 Clement 5 honors Peter and Paul as Rome’s martyrs."],
+  ["paul", "clementrome", "resurrection one", "Writes to the same church in Corinth and cites Paul’s letter to them (1 Clem 47)."],
+  ["hebrews", "clementrome", "temple", "1 Clement 36 borrows Hebrews 1 almost word for word."],
+  ["matthew", "didache", "kingdom covenant", "The Lord’s Prayer in Matthew’s form (Did 8)."],
+  ["james", "didache", "covenant", "Jewish-Christian ethics of the Two Ways.", "d"],
+  ["paul", "ignatius", "one", "Ignatius calls himself a fellow initiate with Paul (Eph 12)."],
+  ["matthew", "ignatius", "messiah", "Quotes Matthew and calls Jesus ‘of the family of David’ (Smyrn 1)."],
+  ["john", "polycarp", "wisdom", "Irenaeus says Polycarp learned from John and others who had seen the Lord."],
+  ["ignatius", "polycarp", "one", "Ignatius writes to Polycarp on the road to his martyrdom."],
+  ["john", "justin", "wisdom", "Justin’s Logos theology builds on John’s prologue."],
+  ["philo", "justin", "wisdom", "Justin’s ‘another God’ language resembles Philo’s ‘second God’.", "d"],
+  ["isaiah", "justin", "messiah", "Debates Isaiah 7:14 with Trypho (Dial 43; 66–67)."],
+  ["paul", "marcion", "covenant", "Marcion treats Paul as the only true apostle and sets law and gospel against each other."],
+  ["luke", "marcion", "covenant", "Marcion’s gospel is a cut-down Luke."],
+  ["polycarp", "irenaeus", "resurrection", "Irenaeus heard Polycarp preach when he was a boy in Smyrna."],
+  ["justin", "irenaeus", "wisdom one", "Irenaeus draws on Justin’s writing against heresies."],
+  ["clementrome", "irenaeus", "covenant", "Lists Clement among Rome’s early bishops and praises his letter (AH 3.3.3)."],
+  ["marcion", "irenaeus", "one", "Irenaeus answers that one God made the world and sent his Son.", "c"],
+  ["marcion", "justin", "one", "Justin wrote a treatise against Marcion, now lost (1 Apol 26).", "c"],
+  ["pharisees", "rabbis", "covenant resurrection", "After 70 CE the Pharisaic tradition becomes rabbinic Judaism."],
+  ["hillel", "rabbis", "covenant", "Rabbinic law usually follows the House of Hillel."],
+  ["zealots", "rabbis", "temple kingdom", "The failed revolt ends the Temple in 70 CE; Johanan ben Zakkai escapes to found the academy at Yavneh.", "c"],
+  ["justin", "rabbis", "one", "Justin argues with Trypho; the rabbis reject teaching of ‘two powers in heaven’.", "c"],
+  ["irenaeus", "tertullian", "one spirit", "Tertullian builds on Irenaeus’ ‘rule of faith’."],
+  ["marcion", "tertullian", "one", "Five books Against Marcion defend the God of Israel as the Father of Jesus.", "c"],
+  ["philo", "clementalex", "wisdom", "Clement quotes and paraphrases Philo at length."],
+  ["justin", "clementalex", "wisdom", "Carries on the Logos theology of the apologists."],
+  ["clementalex", "origen", "wisdom", "Origen follows Clement in the Alexandrian school."],
+  ["lxx", "origen", "name", "The Hexapla sets the Hebrew beside the Septuagint and other Greek versions."],
+  ["origen", "arius", "wisdom", "Arius inherits Origen’s ranking of the Logos below the Father and presses it further."],
+  ["sages", "arius", "wisdom", "‘The LORD created me’ (Prov 8:22 in Greek) becomes Arius’ key text."],
+  ["origen", "athanasius", "wisdom", "Athanasius takes up Origen’s teaching that the Son is eternally begotten."],
+  ["irenaeus", "athanasius", "resurrection", "Salvation as God restoring and raising humanity, first sketched by Irenaeus (AH 5 preface)."],
+  ["tertullian", "nicaea", "one spirit", "Western ‘one substance’ language supports the creed."],
+  ["athanasius", "nicaea", "one wisdom", "Defends the Nicene ‘of one substance’ for fifty years."],
+  ["arius", "nicaea", "wisdom", "The council condemns ‘there was when he was not’.", "c"],
+  ["paul", "nicaea", "one", "‘One God, the Father… one Lord, Jesus Christ’ (1 Cor 8:6) is the skeleton of the creed."],
+  ["moses", "nicaea", "one", "‘We believe in one God’: the creed still begins with the Shema (Deut 6:4)."]
+];
+
+/* ---------------- model ---------------- */
+const ideaById = Object.fromEntries(IDEAS.map(i => [i.id, i]));
+const nodes = NODES.map(([id, era, kind, name, date, text, refs]) => ({ id, era, kind, name, date, text, refs, in: [], out: [] }));
+const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+const edges = EDGES.map(([s, t, ideas, note, flag], i) => {
+  const e = { i, s: byId[s], t: byId[t], ideas: ideas.split(" "), note, flag: flag || "" };
+  if (!e.s || !e.t) console.warn("bad edge", s, t);
+  e.s.out.push(e); e.t.in.push(e);
+  return e;
+});
+nodes.forEach(n => {
+  n.deg = n.in.length + n.out.length;
+  n.ideas = [...new Set([...n.in, ...n.out].flatMap(e => e.ideas))].sort((a, b) => IDEAS.findIndex(x => x.id === a) - IDEAS.findIndex(x => x.id === b));
+});
+
+const state = { sel: null, idea: null, lineage: false };
+
+/* ---------------- helpers ---------------- */
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isPhone = () => innerWidth < 900;
+function wrapLabel(name, max) {
+  const words = name.split(" "), lines = [""];
+  for (const w of words) {
+    const cur = lines[lines.length - 1];
+    if (cur && (cur + " " + w).length > max) lines.push(w); else lines[lines.length - 1] = cur ? cur + " " + w : w;
+  }
+  if (lines.length > 2) return [lines[0], lines.slice(1).join(" ")];
+  return lines;
+}
+function radius(n) { return n.id === "jesus" ? 19 : 9 + Math.min(n.deg, 14) * 0.45; }
+
+/* ---------------- stats ---------------- */
+$("#stats").innerHTML =
+  `<span><b>${nodes.length}</b> people, communities & writings</span>` +
+  `<span><b>${edges.length}</b> links</span>` +
+  `<span><b>${IDEAS.length}</b> ideas about God</span>` +
+  `<span><b>~2,100</b> years</span>`;
+
+/* ---------------- idea chips ---------------- */
+function chipHTML(idea, pressed, cls = "chip") {
+  return `<button type="button" class="${cls}" data-idea="${idea.id}" aria-pressed="${pressed}" style="--c:${idea.color}"><span class="dot"></span>${esc(idea.label)}</button>`;
+}
+function renderChips() {
+  $("#chips").innerHTML = IDEAS.map(i => chipHTML(i, state.idea === i.id)).join("");
+}
+$("#chips").addEventListener("click", e => {
+  const b = e.target.closest("[data-idea]");
+  if (b) setIdea(state.idea === b.dataset.idea ? null : b.dataset.idea);
+});
+
+/* ---------------- graph ---------------- */
+const svg = $("#graph");
+let W = 0, nodeEls = {}, edgeEls = [];
+
+function layout(width) {
+  const pad = width < 520 ? 22 : 34;
+  const inner = width - pad * 2;
+  const colW = width < 520 ? 100 : 128;
+  const perRow = Math.max(3, Math.floor(inner / colW));
+  const rowH = width < 520 ? 84 : 90;
+  let y = 0;
+  const bands = [];
+  ERAS.forEach((era, ei) => {
+    const list = nodes.filter(n => n.era === ei);
+    list.forEach((n, i) => {
+      const src = n.in.map(e => e.s).filter(s => s.era < ei);
+      const dst = n.out.map(e => e.t).filter(t => t.era < ei);
+      const refs = src.concat(dst);
+      n.bary = refs.length ? refs.reduce((a, s) => a + s.x, 0) / refs.length : pad + inner * (i + 0.5) / list.length;
+    });
+    list.sort((a, b) => a.bary - b.bary);
+    const rows = Math.ceil(list.length / perRow);
+    const top = y;
+    y += 52;
+    list.forEach((n, k) => {
+      const r = k % rows, c = Math.floor(k / rows);
+      const m = Math.floor((list.length - r - 1) / rows) + 1;
+      const shift = rows > 1 ? (r % 2 ? 0.22 : -0.22) : 0;
+      n.x = pad + inner * Math.min(Math.max((c + 0.5 + shift) / m, 0.04), 0.96);
+      n.y = y + r * rowH + 14;
+    });
+    y += rows * rowH + 6;
+    bands.push({ top, bottom: y, era });
+  });
+  return { bands, height: y + 10 };
+}
+
+function edgePath(e) {
+  const a = e.s, b = e.t;
+  const ra = radius(a), rb = radius(b);
+  if (Math.abs(a.y - b.y) < 4) {
+    const mx = (a.x + b.x) / 2, lift = Math.min(60, 18 + Math.abs(a.x - b.x) * 0.2);
+    return `M${a.x},${a.y - ra} Q${mx},${a.y - ra - lift} ${b.x},${b.y - rb}`;
+  }
+  const down = b.y > a.y;
+  const y1 = a.y + (down ? ra : -ra), y2 = b.y + (down ? -rb : rb);
+  const dy = (y2 - y1) * 0.5;
+  return `M${a.x},${y1} C${a.x},${y1 + dy} ${b.x},${y2 - dy} ${b.x},${y2}`;
+}
+
+function nodeShape(n, g) {
+  const r = radius(n);
+  if (n.kind === "g") el("rect", { class: "shape", x: n.x - r, y: n.y - r, width: r * 2, height: r * 2, rx: 4 }, g);
+  else if (n.kind === "w") {
+    const q = r * 1.22;
+    el("polygon", { class: "shape", points: `${n.x},${n.y - q} ${n.x + q},${n.y} ${n.x},${n.y + q} ${n.x - q},${n.y}` }, g);
+  } else {
+    el("circle", { class: "shape", cx: n.x, cy: n.y, r }, g);
+    if (n.kind === "e") el("circle", { class: "ring", cx: n.x, cy: n.y, r: r + 4 }, g);
+  }
+}
+
+function seeded(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+function render() {
+  const width = Math.round($("#stage").clientWidth);
+  if (!width || width === W) return;
+  W = width;
+  const { bands, height } = layout(W);
+  svg.setAttribute("viewBox", `0 0 ${W} ${height}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", height);
+  svg.innerHTML = "";
+
+  const gBands = el("g", {}, svg);
+  bands.forEach((b, i) => {
+    if (i % 2 === 0) el("rect", { class: "band-fill", x: 0, y: b.top, width: W, height: b.bottom - b.top }, gBands);
+    const t = el("text", { class: "band-name", x: 14, y: b.top + 22 }, gBands);
+    t.textContent = b.era.name;
+    const d = el("text", { class: "band-date", x: 14, y: b.top + 38 }, gBands);
+    d.textContent = b.era.dates;
+  });
+
+  const rnd = seeded(7);
+  const gStars = el("g", { "aria-hidden": "true" }, svg);
+  const count = Math.round(W * height / 9000);
+  for (let i = 0; i < count; i++) {
+    el("circle", { class: "star", cx: (rnd() * W).toFixed(1), cy: (rnd() * height).toFixed(1), r: (0.4 + rnd() * 0.8).toFixed(2), opacity: (0.08 + rnd() * 0.3).toFixed(2) }, gStars);
+  }
+
+  const gEdges = el("g", { id: "edges" }, svg);
+  edgeEls = edges.map(e => {
+    const cls = "edge" + (e.flag === "c" ? " clash" : e.flag === "d" ? " disputed" : "");
+    const p = el("path", { class: cls, d: edgePath(e) }, gEdges);
+    p.__e = e;
+    return p;
+  });
+
+  const gNodes = el("g", {}, svg);
+  nodeEls = {};
+  nodes.forEach(n => {
+    const g = el("g", { class: "node" + (n.id === "jesus" ? " hub" : ""), tabindex: 0, role: "button", "aria-label": `${n.name}, ${n.date}` }, gNodes);
+    el("rect", { class: "hit", x: n.x - 44, y: n.y - 22, width: 88, height: 60 }, g);
+    nodeShape(n, g);
+    const lines = wrapLabel(n.name, W < 520 ? 13 : 16);
+    const r = radius(n) + (n.kind === "w" ? 3 : 0);
+    const t = el("text", { x: n.x, y: n.y + r + 15 }, g);
+    lines.forEach((ln, i) => {
+      const s = el("tspan", { x: n.x, dy: i ? 14 : 0 }, t);
+      s.textContent = ln;
+    });
+    g.addEventListener("click", ev => { ev.stopPropagation(); select(n.id); });
+    g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id); } });
+    nodeEls[n.id] = g;
+  });
+  applyState();
+}
+
+svg.addEventListener("click", () => { if (state.sel) select(null); });
+
+/* ---------------- state ---------------- */
+function lineageEdges(n) {
+  const set = new Set();
+  const walk = (start, dir) => {
+    const seen = new Set([start.id]), queue = [start];
+    while (queue.length) {
+      const cur = queue.shift();
+      for (const e of dir === "up" ? cur.in : cur.out) {
+        if (e.flag === "c") continue;
+        set.add(e);
+        const nxt = dir === "up" ? e.s : e.t;
+        if (!seen.has(nxt.id)) { seen.add(nxt.id); queue.push(nxt); }
+      }
+    }
+  };
+  walk(n, "up"); walk(n, "down");
+  return set;
+}
+
+function activeEdges() {
+  const sel = state.sel && byId[state.sel];
+  let set = null;
+  if (sel) set = state.lineage ? lineageEdges(sel) : new Set([...sel.in, ...sel.out]);
+  if (state.idea) {
+    const base = set ? [...set] : edges;
+    set = new Set(base.filter(e => e.ideas.includes(state.idea)));
+  }
+  return set;
+}
+
+function applyState() {
+  const set = activeEdges();
+  const filtering = !!set;
+  const onNodes = new Set();
+  if (set) set.forEach(e => { onNodes.add(e.s.id); onNodes.add(e.t.id); });
+  if (state.sel) onNodes.add(state.sel);
+
+  const front = [];
+  edgeEls.forEach(p => {
+    const e = p.__e, on = filtering && set.has(e);
+    p.classList.toggle("on", on);
+    p.classList.toggle("dim", filtering && !on);
+    const col = on ? ideaById[state.idea && e.ideas.includes(state.idea) ? state.idea : e.ideas[0]].color : "";
+    p.style.stroke = col;
+    if (on) front.push(p);
+  });
+  const g = svg.querySelector("#edges");
+  if (g) front.forEach(p => g.appendChild(p));
+
+  nodes.forEach(n => {
+    const g = nodeEls[n.id];
+    if (!g) return;
+    const on = onNodes.has(n.id);
+    g.classList.toggle("sel", state.sel === n.id);
+    g.classList.toggle("on", filtering && on);
+    g.classList.toggle("dim", filtering && !on);
+    const shape = g.querySelector(".shape");
+    shape.style.stroke = filtering && on && state.idea && state.sel !== n.id ? ideaById[state.idea].color : "";
+  });
+
+  $("#clearAll").hidden = !state.sel && !state.idea;
+  const note = $("#ideaNote");
+  if (state.idea) {
+    const idea = ideaById[state.idea];
+    const count = edges.filter(e => e.ideas.includes(idea.id)).length;
+    note.hidden = false;
+    note.style.setProperty("--c", idea.color);
+    note.innerHTML = `<b>${esc(idea.label)}</b> · ${esc(idea.desc)} <span style="white-space:nowrap">${count} links.</span>`;
+  } else note.hidden = true;
+  measureBar();
+  renderPanel();
+}
+
+function setIdea(id) {
+  state.idea = id;
+  renderChips();
+  applyState();
+}
+
+function select(id, opts = {}) {
+  state.sel = id;
+  if (!id) state.lineage = false;
+  applyState();
+  try {
+    const url = location.pathname + location.search + (id ? "#" + id : "");
+    history.replaceState(null, "", url);
+  } catch (_) {}
+  if (id && opts.scroll) scrollToNode(id);
+  if (id && isPhone()) $("#panel").scrollTop = 0;
+}
+
+function scrollToNode(id) {
+  const n = byId[id];
+  const top = svg.getBoundingClientRect().top + scrollY + n.y;
+  const frac = isPhone() ? 0.2 : 0.4;
+  window.scrollTo({ top: Math.max(0, top - innerHeight * frac), behavior: reduceMotion ? "auto" : "smooth" });
+}
+
+/* ---------------- panel ---------------- */
+const legendHTML = `
+  <div class="legend">
+    <div><svg width="26" height="22" viewBox="0 0 26 22"><circle class="shape" cx="13" cy="11" r="8"/></svg>Person</div>
+    <div><svg width="26" height="22" viewBox="0 0 26 22"><rect class="shape" x="5" y="3" width="16" height="16" rx="3"/></svg>Community or sect</div>
+    <div><svg width="26" height="22" viewBox="0 0 26 22"><polygon class="shape" points="13,1 23,11 13,21 3,11"/></svg>Writing or book</div>
+    <div><svg width="26" height="22" viewBox="0 0 26 22"><circle class="shape" cx="13" cy="11" r="6"/><circle class="ring" cx="13" cy="11" r="9.5"/></svg>Church council</div>
+    <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25"/></svg>Passed an idea on</div>
+    <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25" stroke-dasharray="6 4"/></svg>Clashed or reacted against</div>
+    <div><svg width="26" height="10" viewBox="0 0 26 10"><path class="ln" d="M1 5H25" stroke-dasharray="1.5 4" stroke-linecap="round"/></svg>Link scholars debate</div>
+  </div>`;
+
+function linkItem(e, other) {
+  const matched = state.idea && e.ideas.includes(state.idea);
+  const tag = e.flag === "c" ? `<span class="tag">clash</span>` : e.flag === "d" ? `<span class="tag">debated</span>` : "";
+  const dots = e.ideas.map(i => `<i style="--c:${ideaById[i].color}" title="${esc(ideaById[i].label)}"></i>`).join("");
+  return `<li><button type="button" data-go="${other.id}" class="${matched ? "match" : ""}">
+    <span class="dots" aria-hidden="true">${dots}</span>
+    <span class="who">${esc(other.name)}<small>${esc(other.date)}</small>${tag}</span>
+    <span class="note">${esc(e.note)} <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ideas: ${e.ideas.map(i => ideaById[i].label).join(", ")}</span></span>
+  </button></li>`;
+}
+
+function renderPanel() {
+  const panel = $("#panel");
+  const n = state.sel && byId[state.sel];
+  document.body.classList.toggle("sheet-open", !!n && isPhone());
+  panel.classList.toggle("open", !!n);
+  if (!n) {
+    panel.innerHTML = `<div class="panel-body intro-desktop">
+      <p class="kind">How to read the map</p>
+      <h2>Follow the witnesses</h2>
+      <p class="summary">Time runs down the page, from Abraham (about 1800 BCE by tradition) to the Council of Nicaea in 325 CE. Each line is a documented handoff: a quotation, a teacher and student, a community’s inheritance, or a quarrel.</p>
+      <p class="summary"><b>Click anyone</b> to see who shaped them and whom they shaped. <b>Pick an idea</b> in the bar above to light up its thread through the centuries.</p>
+      ${legendHTML}
+      <h3>Good places to start</h3>
+      <ul class="links">
+        ${["moses", "daniel", "pharisees", "jesus", "paul", "nicaea"].map(id => `<li><button type="button" data-go="${id}"><span class="dots"></span><span class="who">${esc(byId[id].name)}<small>${esc(byId[id].date)}</small></span></button></li>`).join("")}
+      </ul>
+    </div>`;
+    return;
+  }
+  const ins = [...n.in].sort((a, b) => a.s.era - b.s.era);
+  const outs = [...n.out].sort((a, b) => a.t.era - b.t.era);
+  const faded = state.idea ? " faded" : "";
+  panel.innerHTML = `<div class="grab" aria-hidden="true"></div><div class="panel-body">
+    <div class="panel-head">
+      <div>
+        <p class="kind">${KINDS[n.kind]} · ${esc(ERAS[n.era].name)}</p>
+        <h2>${esc(n.name)}</h2>
+        <p class="date">${esc(n.date)}</p>
+      </div>
+      <button type="button" class="close" data-close aria-label="Close">×</button>
+    </div>
+    <p class="summary">${esc(n.text)}</p>
+    <p class="refs"><b>Key texts:</b> ${esc(n.refs)}</p>
+    <div class="mini-chips">${n.ideas.map(id => chipHTML(ideaById[id], state.idea === id)).join("")}</div>
+    <div class="seg" role="group" aria-label="How far to trace">
+      <button type="button" data-lineage="0" aria-pressed="${!state.lineage}">Direct links</button>
+      <button type="button" data-lineage="1" aria-pressed="${state.lineage}">Whole lineage</button>
+    </div>
+    <p class="seg-note">${state.lineage ? "Showing everyone upstream and downstream along the lines of influence (clashes excluded)." : "Showing only the people directly connected."}</p>
+    <h3>Received from · ${ins.length}</h3>
+    ${ins.length ? `<ul class="links${faded}">${ins.map(e => linkItem(e, e.s)).join("")}</ul>` : `<p class="empty">The map begins here.</p>`}
+    <h3>Passed on to · ${outs.length}</h3>
+    ${outs.length ? `<ul class="links${faded}">${outs.map(e => linkItem(e, e.t)).join("")}</ul>` : `<p class="empty">The map ends here.</p>`}
+  </div>`;
+}
+
+$("#panel").addEventListener("click", e => {
+  const go = e.target.closest("[data-go]");
+  if (go) { select(go.dataset.go, { scroll: true }); return; }
+  if (e.target.closest("[data-close]")) { select(null); return; }
+  const lin = e.target.closest("[data-lineage]");
+  if (lin) { state.lineage = lin.dataset.lineage === "1"; applyState(); return; }
+  const idea = e.target.closest("[data-idea]");
+  if (idea) setIdea(state.idea === idea.dataset.idea ? null : idea.dataset.idea);
+});
+
+$("#clearAll").addEventListener("click", () => {
+  state.idea = null; state.lineage = false; renderChips(); select(null);
+});
+
+document.addEventListener("keydown", e => { if (e.key === "Escape" && state.sel) select(null); });
+
+/* ---------------- search ---------------- */
+const q = $("#q"), results = $("#results");
+function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ’']/g, ""); }
+q.addEventListener("input", () => {
+  const term = norm(q.value.trim());
+  if (!term) { results.hidden = true; return; }
+  const hits = nodes.filter(n => norm(n.name).includes(term) || norm(n.text).includes(term))
+    .sort((a, b) => (norm(b.name).includes(term) - norm(a.name).includes(term)) || a.era - b.era)
+    .slice(0, 8);
+  results.innerHTML = hits.length
+    ? hits.map(n => `<li><button type="button" data-go="${n.id}"><span>${esc(n.name)}</span><small>${esc(n.date)}</small></button></li>`).join("")
+    : `<li style="padding:8px 10px;color:var(--muted)">No match. Try a name like Isaiah or Philo.</li>`;
+  results.hidden = false;
+});
+results.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (!b) return;
+  results.hidden = true; q.value = ""; q.blur();
+  select(b.dataset.go, { scroll: true });
+});
+q.addEventListener("keydown", e => {
+  if (e.key === "Enter") { const b = results.querySelector("[data-go]"); if (b) b.click(); }
+  if (e.key === "Escape") { results.hidden = true; }
+});
+document.addEventListener("click", e => { if (!e.target.closest(".search")) results.hidden = true; });
+
+/* ---------------- boot ---------------- */
+function measureBar() {
+  document.documentElement.style.setProperty("--bar-h", $("#bar").offsetHeight + "px");
+}
+renderChips();
+render();
+let rt;
+addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { render(); measureBar(); }, 120); });
+const start = location.hash.slice(1);
+if (byId[start]) { select(start); setTimeout(() => scrollToNode(start), 60); }
+</script>
+</body>
+</html>
