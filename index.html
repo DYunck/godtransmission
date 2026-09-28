@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cloud of Witnesses</title>
-<meta name="description" content="An interactive network of how Israel's ideas about God passed from Abraham through the prophets and Jewish sects to Jesus, the apostles and the early church fathers.">
+<meta name="description" content="An interactive network of how Israel's God moved from person to person, from Abraham through the prophets and Jewish sects to Jesus, the apostles and the early church fathers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Marcellus&display=swap">
@@ -392,7 +392,7 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
 <nav class="bar" id="bar" aria-label="Filter by idea">
   <div class="bar-inner">
     <div class="tabs" role="tablist" aria-label="Choose a map">
-      <button type="button" class="tab" role="tab" data-map="ideas" aria-selected="true">Ideas about God</button>
+      <button type="button" class="tab" role="tab" data-map="ideas" aria-selected="true">Israel’s God</button>
       <button type="button" class="tab" role="tab" data-map="scripture" aria-selected="false">Scripture’s journey</button>
     </div>
     <div class="bar-row">
@@ -414,7 +414,7 @@ footer p { max-width: 70ch; margin: 0 0 10px; }
     <div class="intro-mobile">
       <p id="introMobile"></p>
     </div>
-    <svg id="graph" role="img" aria-label="Network of people, communities and writings linked by the ideas about God they passed on"></svg>
+    <svg id="graph" role="img" aria-label="Network of people, communities and writings linked by what they passed on about Israel’s God"></svg>
   </main>
   <aside id="panel" aria-live="polite"></aside>
 </div>
@@ -970,7 +970,7 @@ const MAPS = {
     id: "ideas", threads: IDEAS, eras: ERAS, nodes: NODES, edges: EDGES, hub: "jesus",
     kinds: { p: "Person", g: "Community or sect", w: "Writing or book", e: "Church council" },
     inLabel: "Received from", outLabel: "Passed on to", refsLabel: "Key texts", span: "~2,100",
-    statNoun: "ideas about God",
+    statNoun: "threads to follow",
     lede: "How Israel’s God moved from person to person: from <b>Abraham</b> through the prophets, the exile and the rival <b>Jewish sects</b>, to <b>Jesus</b>, the apostles and the <b>church fathers</b> who wrote the Nicene Creed.",
     introTitle: "Follow the witnesses",
     intro: "Time runs down the page, from Abraham (about 1800 BCE by tradition) to the Council of Nicaea in 325 CE. Each line is a documented handoff: a quotation, a teacher and student, a community’s inheritance, or a quarrel.",
@@ -1423,7 +1423,7 @@ function renderPanel() {
       <button type="button" data-lineage="1" aria-pressed="${state.lineage}">Whole lineage</button>
     </div>
     <p class="seg-note">${state.lineage ? "Showing everything upstream and downstream along the lines of influence (clashes excluded)." : "Showing only direct connections."}</p>
-    ${also ? `<button type="button" class="jump" data-go="${also}">Also on the ${mapOf[also] === "scripture" ? "scripture" : "ideas"} map: ${esc(MODELS[mapOf[also]].byId[also].name)} →</button>` : ""}
+    ${also ? `<button type="button" class="jump" data-go="${also}">Also on the ${mapOf[also] === "scripture" ? "scripture" : "Israel’s God"} map: ${esc(MODELS[mapOf[also]].byId[also].name)} →</button>` : ""}
     <h3>${esc(M.inLabel)} · ${ins.length}</h3>
     ${ins.length ? `<ul class="links${faded}">${ins.map(e => linkItem(e, e.s)).join("")}</ul>` : `<p class="empty">The map begins here.</p>`}
     <h3>${esc(M.outLabel)} · ${outs.length}</h3>
@@ -1462,7 +1462,7 @@ q.addEventListener("input", () => {
     .sort((a, b) => (norm(b.n.name).includes(term) - norm(a.n.name).includes(term)) || ((b.m.id === M.id) - (a.m.id === M.id)) || a.n.era - b.n.era)
     .slice(0, 8);
   results.innerHTML = hits.length
-    ? hits.map(({ n, m }) => `<li><button type="button" data-go="${n.id}"><span>${esc(n.name)}</span><small>${m.id === "scripture" ? "Scripture · " : "Ideas · "}${esc(n.date)}</small></button></li>`).join("")
+    ? hits.map(({ n, m }) => `<li><button type="button" data-go="${n.id}"><span>${esc(n.name)}</span><small>${m.id === "scripture" ? "Scripture · " : "Israel’s God · "}${esc(n.date)}</small></button></li>`).join("")
     : `<li style="padding:8px 10px;color:var(--muted)">No match. Try a name like Isaiah, Jerome or King James.</li>`;
   results.hidden = false;
 });

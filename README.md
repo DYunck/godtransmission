@@ -1,6 +1,6 @@
 # Cloud of Witnesses
 
-An interactive network map of how Israel's ideas about God moved from person to person: from Abraham through Moses, the prophets, the exile and the Jewish sects of the Second Temple period, to Jesus, the apostles and the church fathers who wrote the Nicene Creed.
+An interactive network map of how Israel's God moved from person to person: from Abraham through Moses, the prophets, the exile and the Jewish sects of the Second Temple period, to Jesus, the apostles and the church fathers who wrote the Nicene Creed.
 
 - **Tap anyone** to see who shaped them and whom they shaped, with the texts behind each link.
 - **Pick an idea** (One God, Covenant, the Divine Name, Messiah, Son of Man, Wisdom & Word, Spirit, Resurrection, Kingdom of God, Presence & Priesthood) to trace its thread through the centuries.
